@@ -1,5 +1,5 @@
 // jest.config.ts
-import type { Config } from 'jest';
+import type { Config } from 'jest'
 
 const config: Config = {
   // Указываем, что используем TypeScript через ts-jest
@@ -10,7 +10,7 @@ const config: Config = {
 
   // Файл, который будет выполняться перед каждым тестовым файлом.
   // Сюда мы импортируем матчеры из jest-dom.
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/tes.ts'],
 
   // Говорим Jest, как обрабатывать разные типы файлов
   transform: {

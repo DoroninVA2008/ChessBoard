@@ -1,0 +1,35 @@
+.chessboard {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  grid-template-rows: repeat(8, 60px);
+  border: 2px solid #333;
+  width: fit-content;
+}
+
+.square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+
+  &.light {
+    background: #f0d9b5;
+  }
+
+  &.dark {
+    background: #b58863;
+  }
+
+  &.selected {
+    outline: 3px solid #00f5d4;
+    outline-offset: -3px;
+  }
+}
+
+.piece {
+  user-select: none;
+  pointer-events: none;
+}
