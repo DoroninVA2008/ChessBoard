@@ -3,7 +3,7 @@
 $square-size: 60px;
 
 .chessboard {
-  position: relative;              // якорь для абсолютных слоёв
+  position: relative;
   width: calc(#{$square-size} * 8);
   height: calc(#{$square-size} * 8);
   border: 2px solid #333;
@@ -25,15 +25,33 @@ $square-size: 60px;
   cursor: pointer;
   border: none;
   padding: 0;
+  position: relative;
 
   &.light { background: $lightpoint; }
   &.dark  { background: $darkpoint; }
+
+  &.legal::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $focus;
+    pointer-events: none;
+  }
+
+  &.legal.capture::after {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 4px solid $backpage;
+    border-radius: 50%;
+  }
 }
 
 .pieces-layer {
   position: absolute;
   inset: 0;
-  pointer-events: none;            // клики идут в клетки под низом
+  pointer-events: none;
 }
 
 .piece {
@@ -47,21 +65,63 @@ $square-size: 60px;
   justify-content: center;
   font-size: 40px;
   user-select: none;
-  color: $focus;
   will-change: transform;
-  transition: transform 0.3s ease-out; // ← магия тут
-  pointer-events: auto;   // слой прозрачен, фигуры — нет
-  touch-action: none;     // ← без этого на таче будет скролл вместо drag
+  transition: transform 0.3s ease-out;
+  pointer-events: auto;
+  touch-action: none;
   cursor: grab;
 
+  &--white {
+    color: #fff;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+  }
+
+  &--black {
+    color: #111;
+    text-shadow: 0 0 2px #fff;
+  }
+
   &.dragging {
-    transition: none;     // ← без этого фигура «плывёт» за курсором с задержкой
+    transition: none;
     cursor: grabbing;
     z-index: 10;
+    filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35));
   }
 
   &.selected {
     outline: 3px solid $focus;
     outline-offset: -3px;
   }
+}
+
+.chessboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.turn-indicator {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  border: 2px solid #333;
+
+  &--white {
+    background: #fff;
+    color: #111;
+  }
+
+  &--black {
+    background: #111;
+    color: #fff;
+  }
+}
+
+.piece--inactive {
+  // чужие фигуры — не привлекают внимания, но видны
+  cursor: default;
+  // можно слегка приглушить, если хочешь:
+  // opacity: 0.85;
 }
