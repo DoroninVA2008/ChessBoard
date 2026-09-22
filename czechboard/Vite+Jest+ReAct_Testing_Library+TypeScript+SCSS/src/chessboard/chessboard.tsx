@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useCallback } from 'react'
 import './chessboard.scss'
 import {
   type Piece, type Square, type PieceColor,
@@ -22,14 +22,25 @@ const coordsToSquare = (x: number, y: number): Square | null => {
 
 type Drag = { id: string; offsetX: number; offsetY: number; x: number; y: number }
 
+export type MovePayload = {
+  from: Square
+  to: Square
+  pieceId: string
+  capturedId?: string
+}
+
 type ChessBoardProps = {
   initialPieces?: Piece[]
   initialTurn?: PieceColor
+  className?: string
+  onMove?: (move: MovePayload) => void
 }
 
 export const ChessBoard = ({
   initialPieces,
   initialTurn = 'white',
+  className,
+  onMove,
 }: ChessBoardProps = {}) => {
   const [pieces, setPieces] = useState<Piece[]>(initialPieces ?? initialPosition())
   const [turn, setTurn] = useState<PieceColor>(initialTurn)
@@ -42,7 +53,7 @@ export const ChessBoard = ({
     [pieces, selectedId]
   )
 
-  // Легальные ходы только для выбранной фигуры своего цвета
+  // Легальные ходы только для выбранной фигуры своего цвета.
   const legalMoves = useMemo(
     () =>
       selectedPiece && selectedPiece.color === turn
@@ -51,90 +62,115 @@ export const ChessBoard = ({
     [pieces, selectedPiece, turn]
   )
 
-  const tryMove = (pieceId: string, to: Square): boolean => {
+  const tryMove = useCallback(
+  (pieceId: string, to: Square): boolean => {
     const piece = pieces.find((p) => p.id === pieceId)
     if (!piece) return false
-    // ход только своей фигурой
     if (piece.color !== turn) return false
     if (!isLegalMove(pieces, piece, to)) return false
 
-    setPieces((prev) => {
-      const captured = prev.find((p) => p.square === to && p.id !== pieceId)
-      return prev
+    const captured = pieces.find((p) => p.square === to && p.id !== pieceId)
+
+    setPieces((prev) =>
+      prev
         .filter((p) => p.id !== captured?.id)
         .map((p) => (p.id === pieceId ? { ...p, square: to } : p))
-    })
+    )
     setSelectedId(null)
-    setTurn((t) => (t === 'white' ? 'black' : 'white')) // ← смена хода
+    setTurn((t) => (t === 'white' ? 'black' : 'white'))
+
+    onMove?.({
+      from: piece.square,
+      to,
+      pieceId,
+      capturedId: captured?.id,
+    })
+
     return true
-  }
+  },
+  [pieces, turn, onMove]
+)
 
-  const handleSquareClick = (square: Square) => {
-    const pieceHere = pieces.find((p) => p.square === square)
+  const handleSquareClick = useCallback(
+    (square: Square) => {
+      const pieceHere = pieces.find((p) => p.square === square)
 
-    if (pieceHere) {
-      // чужую фигуру выбрать нельзя
-      if (pieceHere.color !== turn) {
-        // но если что-то уже выбрано — попробуем побить её
-        if (selectedId) tryMove(selectedId, square)
+      if (pieceHere) {
+        // Чужую фигуру выбрать нельзя.
+        if (pieceHere.color !== turn) {
+          // Но если что-то уже выбрано — попробуем побить её.
+          if (selectedId) tryMove(selectedId, square)
+          return
+        }
+        // Своя — выбираем или снимаем выделение.
+        setSelectedId((prev) => (prev === pieceHere.id ? null : pieceHere.id))
         return
       }
-      // своя — выбираем/снимаем
-      setSelectedId((prev) => (prev === pieceHere.id ? null : pieceHere.id))
-      return
-    }
 
-    if (selectedId) tryMove(selectedId, square)
-  }
+      if (selectedId) tryMove(selectedId, square)
+    },
+    [pieces, turn, selectedId, tryMove]
+  )
 
   const onPointerDown = (e: React.PointerEvent<HTMLSpanElement>, piece: Piece) => {
-    // чужой фигурой drag не начинаем
-    if (piece.color !== turn) return
-    e.preventDefault()
-    e.stopPropagation()
-    const rect = boardRef.current!.getBoundingClientRect()
-    const { col, row } = squareToCoords(piece.square)
-    const px = e.clientX - rect.left
-    const py = e.clientY - rect.top
+  if (piece.color !== turn) return
+  e.preventDefault()
+  e.stopPropagation()
+  const rect = boardRef.current!.getBoundingClientRect()
+  const { col, row } = squareToCoords(piece.square)
+  const px = e.clientX - rect.left
+  const py = e.clientY - rect.top
+
+  if (typeof e.currentTarget.setPointerCapture === 'function') {
     e.currentTarget.setPointerCapture(e.pointerId)
-    setSelectedId(piece.id)
-    setDrag({
-      id: piece.id,
-      offsetX: px - col * SQUARE_SIZE,
-      offsetY: py - row * SQUARE_SIZE,
-      x: col * SQUARE_SIZE,
-      y: row * SQUARE_SIZE,
-    })
   }
 
-  const onPointerMove = (e: React.PointerEvent<HTMLSpanElement>) => {
-    if (!drag) return
-    const rect = boardRef.current!.getBoundingClientRect()
-    const px = e.clientX - rect.left
-    const py = e.clientY - rect.top
-    setDrag((d) => d && { ...d, x: px - d.offsetX, y: py - d.offsetY })
+  setSelectedId(piece.id)
+  setDrag({
+    id: piece.id,
+    offsetX: px - col * SQUARE_SIZE,
+    offsetY: py - row * SQUARE_SIZE,
+    x: col * SQUARE_SIZE,
+    y: row * SQUARE_SIZE,
+  })
+}
+
+const onPointerMove = (e: React.PointerEvent<HTMLSpanElement>) => {
+  if (!drag) {
+    return
+  }
+  const rect = boardRef.current!.getBoundingClientRect()
+  const px = e.clientX - rect.left
+  const py = e.clientY - rect.top
+  setDrag((d) => d && { ...d, x: px - d.offsetX, y: py - d.offsetY })
+}
+
+const onPointerUp = (e: React.PointerEvent<HTMLSpanElement>) => {
+  if (!drag) {
+    return
+  }
+  const rect = boardRef.current!.getBoundingClientRect()
+  const px = e.clientX - rect.left
+  const py = e.clientY - rect.top
+  const cx = px - drag.offsetX + SQUARE_SIZE / 2
+  const cy = py - drag.offsetY + SQUARE_SIZE / 2
+  const target = coordsToSquare(cx, cy)
+
+  if (target) {
+    tryMove(drag.id, target)
   }
 
-  const onPointerUp = (e: React.PointerEvent<HTMLSpanElement>) => {
-    if (!drag) return
-    const rect = boardRef.current!.getBoundingClientRect()
-    const px = e.clientX - rect.left
-    const py = e.clientY - rect.top
-    const cx = px - drag.offsetX + SQUARE_SIZE / 2
-    const cy = py - drag.offsetY + SQUARE_SIZE / 2
-    const target = coordsToSquare(cx, cy)
-
-    if (target) tryMove(drag.id, target)
-
-    setDrag(null)
-    setSelectedId(null)
-  }
+  setDrag(null)
+  setSelectedId(null)
+}
 
   return (
-    <div className="chessboard-wrapper">
+    <div className={`chessboard-wrapper ${className ?? ''}`}>
       <div
         className={`turn-indicator turn-indicator--${turn}`}
         data-testid="turn-indicator"
+        role="status"
+        aria-live="polite"
       >
         Ход {turn === 'white' ? 'белых' : 'чёрных'}
       </div>

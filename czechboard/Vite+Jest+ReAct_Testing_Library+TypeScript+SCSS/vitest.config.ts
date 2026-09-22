@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
+    setupFiles: './src/chessboard/tes.ts',
   },
   resolve: { alias: { '@': './src' } },
 })
