@@ -28,6 +28,8 @@ function App() {
   }, [])
 
   const handleJoinRoom = useCallback((_code: string) => {
+    // Без сервера код некуда отправить и не с чем сверить.
+    // Заглушка: считаем, что подключение всегда успешно.
     setStatus('connected')
     setMyColor('black')
     setOpponentConnected(true)

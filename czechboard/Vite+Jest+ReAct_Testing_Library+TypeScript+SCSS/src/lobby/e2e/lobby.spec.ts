@@ -44,9 +44,12 @@ test.describe('Лобби: создание и подключение', () => {
     await expect(page.getByTestId('opponent-status')).toContainText('подключён')
   })
 
-  test('клик по подключению с пустым кодом ничего не ломает', async ({ page }) => {
-    await page.getByTestId('join-room-btn').click()
-    await expect(page.getByTestId('lobby')).toBeVisible()
-    await expect(page.getByTestId('create-room-btn')).toBeVisible()
+  test('кнопка подключения неактивна при пустом коде', async ({ page }) => {
+    await expect(page.getByTestId('join-room-btn')).toBeDisabled()
+  })
+
+  test('кнопка подключения активна, когда код введён', async ({ page }) => {
+    await page.getByTestId('join-code-input').fill('ABC123')
+    await expect(page.getByTestId('join-room-btn')).toBeEnabled()
   })
 })

@@ -58,10 +58,11 @@ export const Lobby = ({
               data-testid="join-code-input"
             />
             <button
-              type="button"
-              className="lobby__btn"
-              onClick={handleJoin}
-              data-testid="join-room-btn"
+                type="button"
+                className="lobby__btn"
+                onClick={handleJoin}
+                disabled={!joinCode.trim()}
+                data-testid="join-room-btn"
             >
               Подключиться
             </button>
