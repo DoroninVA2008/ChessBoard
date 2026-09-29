@@ -56,8 +56,6 @@ function App() {
 
   return (
     <div className="app">
-      <h1>ReAct`ивная шахматная доска!</h1>
-
       <Lobby
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
@@ -67,22 +65,20 @@ function App() {
         opponentConnected={opponentConnected}
       />
 
+      <h1 className="app-title">
+        <span className="app-title__crown">♔</span>
+        <span className="app-title__text">Шахматы</span>
+        <span className="app-title__crown">♚</span>
+      </h1>
+
       {inRoom && (
-        <div className="game-info">
-          <div className="game-info__item">
-            Вы играете за:{' '}
-            <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
-          </div>
-          <div className="game-info__item">
-            Сейчас ход:{' '}
-            <strong>{turn === 'white' ? 'белых' : 'чёрных'}</strong>
-          </div>
-          <div className="game-info__item">
-            Соперник:{' '}
-            <strong className={opponentConnected ? 'ok' : 'wait'}>
-              {opponentConnected ? 'подключён' : 'ожидание…'}
-            </strong>
-          </div>
+        <div
+          className="turn-banner"
+          data-testid="turn-indicator"
+          role="status"
+          aria-live="polite"
+        >
+          Ход {turn === 'white' ? 'белых' : 'чёрных'}
         </div>
       )}
 

@@ -2,6 +2,75 @@
 
 $square-size: 60px;
 
+.chessboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Контейнер доски с координатами */
+.chessboard-with-coords {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chessboard-row {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+
+/* Блок координат */
+.chessboard-coords {
+  display: flex;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 500;
+  user-select: none;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* Сверху и снизу: буквы по горизонтали */
+  &--top,
+  &--bottom {
+    flex-direction: row;
+
+    .chessboard-coords__label {
+      width: $square-size;
+      height: 16px;
+    }
+
+    .chessboard-coords__corner {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* Слева и справа: цифры по вертикали */
+  &--left,
+  &--right {
+    flex-direction: column;
+
+    .chessboard-coords__label {
+      width: 16px;
+      height: $square-size;
+    }
+
+    .chessboard-coords__corner {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+/* Сама доска */
 .chessboard {
   position: relative;
   width: calc(#{$square-size} * 8);
@@ -63,7 +132,7 @@ $square-size: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
+  font-size: 48px;
   user-select: none;
   will-change: transform;
   transition: transform 0.3s ease-out;
@@ -72,9 +141,9 @@ $square-size: 60px;
   cursor: grab;
 
   &--white {
-    color: #fff;
-    text-shadow: 0 0 2px #000, 0 0 3px #000;
-  }
+  color: transparent;
+  -webkit-text-stroke: 1px #ffffff;
+}
 
   &--black {
     color: #111;
@@ -94,34 +163,36 @@ $square-size: 60px;
   }
 }
 
-.chessboard-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.turn-indicator {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 16px;
-  border: 2px solid #333;
-
-  &--white {
-    background: #fff;
-    color: #111;
-  }
-
-  &--black {
-    background: #111;
-    color: #fff;
-  }
-}
-
 .piece--inactive {
-  // чужие фигуры — не привлекают внимания, но видны
   cursor: default;
-  // можно слегка приглушить, если хочешь:
-  // opacity: 0.85;
+}
+/* ===== Кнопки управления под доской ===== */
+.chessboard-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.chessboard-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: #00f5d4;
+    color: #00f5d4;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
 }

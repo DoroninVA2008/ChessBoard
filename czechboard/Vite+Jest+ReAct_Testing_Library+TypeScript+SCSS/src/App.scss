@@ -2,6 +2,7 @@ $backpage: #0d0e12;
 $darkpoint: #14161f;
 $lightpoint: #9d4edd;
 $focus: #00f5d4;
+$fontshrift: 'Segoe UI';
 
 #root {
   width: 100vw;
@@ -18,11 +19,55 @@ $focus: #00f5d4;
   background: $backpage;
   color: $lightpoint;
   padding: 2rem;
-  font-family: system-ui, sans-serif;
+  font-family: $fontshrift;
 
   h1 {
     margin: 0;
-    font-weight: 400;
-    letter-spacing: 2px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    font-size: 24px;
+    color: #fff;
+  }
+  .app-title {
+    &__text {
+      margin: 0 4px;
+    }
+  }
+}
+
+/* ===== Баннер «Ход белых / чёрных» над доской ===== */
+.turn-banner {
+  display: inline-block;
+  padding: 6px 18px;
+  margin-top: -20px;
+  margin-bottom: -10px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #00f5d4;
+  background: transparent;
+  border: none;
+}
+/* ===== Инфо об игроке и сопернике ===== */
+.game-info {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 8px;
+
+  &__item {
+    padding: 8px 14px;
+    border: 1px solid rgba(157, 78, 221, 0.4);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #cfc4e6;
+
+    strong {
+      color: #00f5d4;
+    }
+
+    .ok   { color: #00f5d4; }
+    .wait { color: #f5a623; }
   }
 }
