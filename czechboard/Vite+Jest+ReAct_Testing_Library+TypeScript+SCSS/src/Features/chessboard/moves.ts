@@ -45,6 +45,13 @@ export const getLegalMoves = (board: Board, piece: Piece): Square[] => {
 const rookMoves = (board: Board, piece: Piece): Square[] =>
   slidingMoves(board, piece, [[1,0],[-1,0],[0,1],[0,-1]])
 
+/**
+ * sdtststsrtsrt
+ * @param board 
+ * @param piece 
+ * @param dirs 
+ * @returns 
+ */
 const slidingMoves = (
   board: Board,
   piece: Piece,

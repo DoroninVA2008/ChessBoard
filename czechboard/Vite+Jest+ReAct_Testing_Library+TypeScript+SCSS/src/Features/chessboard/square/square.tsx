@@ -1,17 +1,5 @@
 import './square.scss'
-
-export type SquareProps = {
-  /** Шахматная клетка, например 'e4' */
-  square: string
-  /** Тёмная ли клетка */
-  isDark: boolean
-  /** Легальный ли ход в эту клетку для выбранной фигуры */
-  isLegal?: boolean
-  /** Есть ли на этой клетке фигура соперника (взятие) */
-  isCapture?: boolean
-  /** Клик по клетке */
-  onClick?: (square: string) => void
-}
+import { type SquareProps } from './squrops'
 
 export const Square = ({
   square,

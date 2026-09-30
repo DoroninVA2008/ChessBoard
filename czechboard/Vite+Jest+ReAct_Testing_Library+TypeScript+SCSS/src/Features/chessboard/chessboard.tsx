@@ -1,10 +1,13 @@
 import { useState, useRef, useMemo, useCallback } from 'react'
 import './chessboard.scss'
-import { Square } from './square/square'
 import {
   type Piece, type Square as SquareType, type PieceColor,
   getLegalMoves, isLegalMove, initialPosition,
 } from './moves'
+import { Square } from './square/square'
+import { Pieces } from './pieces/pieces'
+import { Coords } from './coords/coords'
+import { ChessButtons } from './chesbutons/chesbutons'
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 const CELLS = 8
@@ -14,8 +17,6 @@ const squareToCoords = (square: SquareType) => ({
   row: 8 - Number(square[1]),
 })
 
-// Все координаты drag — в процентах от размера клетки.
-// 100% == одна клетка, потому что фигура по размеру == клетке.
 type Drag = {
   id: string
   offsetXPct: number
@@ -257,25 +258,10 @@ export const ChessBoard = ({
   return (
     <div className={`chessboard-wrapper ${className ?? ''}`}>
       <div className="chessboard-with-coords">
-        {/* Сверху: буквы a–h */}
-        <div className="chessboard-coords chessboard-coords--top">
-          <span className="chessboard-coords__corner" />
-          {fileOrder.map((file) => (
-            <span key={file} className="chessboard-coords__label">
-              {file}
-            </span>
-          ))}
-          <span className="chessboard-coords__corner" />
-        </div>
+        <Coords side="top" labels={fileOrder} />
 
         <div className="chessboard-row">
-          <div className="chessboard-coords chessboard-coords--left">
-            {rankOrder.map((rank) => (
-              <span key={rank} className="chessboard-coords__label">
-                {rank}
-              </span>
-            ))}
-          </div>
+          <Coords side="left" labels={rankOrder} />
 
           <div className="chessboard" role="grid" ref={boardRef}>
             <div className="squares-layer">
@@ -301,104 +287,32 @@ export const ChessBoard = ({
               )}
             </div>
 
-            <div className="pieces-layer">
-              {pieces.map((piece) => {
-                const isDragging = drag?.id === piece.id
-                const { col, row } = toScreen(piece.square)
-                const dx = isDragging ? drag!.xPct : col * 100
-                const dy = isDragging ? drag!.yPct : row * 100
-                const isSelected = piece.id === selectedId
-                const isPlayable = piece.color === turn
-
-                return (
-                  <span
-                    key={piece.id}
-                    data-testid={`piece-${piece.id}`}
-                    data-square={piece.square}
-                    data-piece-type={piece.type}
-                    data-piece-color={piece.color}
-                    aria-label={`${piece.color} ${piece.type}`}
-                    aria-selected={isSelected}
-                    className={[
-                      'piece',
-                      `piece--${piece.color}`,
-                      isSelected ? 'selected' : '',
-                      isDragging ? 'dragging' : '',
-                      !isPlayable ? 'piece--inactive' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    style={{ transform: `translate(${dx}%, ${dy}%)` }}
-                    onPointerDown={(e) => onPointerDown(e, piece)}
-                    onPointerMove={onPointerMove}
-                    onPointerUp={onPointerUp}
-                    onPointerCancel={onPointerUp}
-                  >
-                    {pieceGlyph(piece)}
-                  </span>
-                )
-              })}
-            </div>
+            <Pieces
+              pieces={pieces}
+              turn={turn}
+              selectedId={selectedId}
+              draggingId={drag?.id ?? null}
+              dragXPct={drag?.xPct ?? null}
+              dragYPct={drag?.yPct ?? null}
+              toScreen={toScreen}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+            />
           </div>
 
-          <div className="chessboard-coords chessboard-coords--right">
-            {rankOrder.map((rank) => (
-              <span key={rank} className="chessboard-coords__label">
-                {rank}
-              </span>
-            ))}
-          </div>
+          <Coords side="right" labels={rankOrder} />
         </div>
 
-        <div className="chessboard-coords chessboard-coords--bottom">
-          <span className="chessboard-coords__corner" />
-          {fileOrder.map((file) => (
-            <span key={file} className="chessboard-coords__label">
-              {file}
-            </span>
-          ))}
-          <span className="chessboard-coords__corner" />
-        </div>
+        <Coords side="bottom" labels={fileOrder} />
       </div>
 
-      <div className="chessboard-controls">
-        <button
-          type="button"
-          className="chessboard-btn"
-          onClick={handleNewGame}
-          data-testid="new-game-btn"
-        >
-          Новая партия
-        </button>
-        <button
-          type="button"
-          className="chessboard-btn"
-          onClick={handleUndo}
-          disabled={history.length === 0}
-          data-testid="undo-btn"
-        >
-          Отменить ход
-        </button>
-        <button
-          type="button"
-          className="chessboard-btn"
-          onClick={handleFlip}
-          data-testid="flip-btn"
-        >
-          Поменять сторону
-        </button>
-      </div>
+      <ChessButtons
+        onNewGame={handleNewGame}
+        onUndo={handleUndo}
+        onFlip={handleFlip}
+        canUndo={history.length > 0}
+      />
     </div>
   )
 }
-
-const WHITE_GLYPHS: Record<Piece['type'], string> = {
-  king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙',
-}
-
-const BLACK_GLYPHS: Record<Piece['type'], string> = {
-  king: '♚', queen: '♛', rook: '♜', bishop: '♝', knight: '♞', pawn: '♟',
-}
-
-const pieceGlyph = (p: Piece) =>
-  p.color === 'white' ? WHITE_GLYPHS[p.type] : BLACK_GLYPHS[p.type]

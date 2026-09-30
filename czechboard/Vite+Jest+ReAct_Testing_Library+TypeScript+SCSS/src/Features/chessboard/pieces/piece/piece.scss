@@ -1,0 +1,46 @@
+@import '../../../../App/App.scss';
+
+.piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* размер = ровно одна клетка, без знания --square-size в px */
+  width: calc(100% / 8);
+  height: calc(100% / 8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--piece-font-size);
+  user-select: none;
+  will-change: transform;
+  transition: transform 0.3s ease-out;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+
+  &--white {
+    color: transparent;
+    -webkit-text-stroke: 1px #ffffff;
+  }
+
+  &--black {
+    color: #111;
+    text-shadow: 0 0 2px #fff;
+  }
+
+  &.dragging {
+    transition: none;
+    cursor: grabbing;
+    z-index: 10;
+    filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35));
+  }
+
+  &.selected {
+    outline: 3px solid $focus;
+    outline-offset: -3px;
+  }
+}
+
+.piece--inactive {
+  cursor: default;
+}

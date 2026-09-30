@@ -1,0 +1,36 @@
+.chessboard-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 2vw, 12px);
+  justify-content: center;
+  margin-top: 40px;
+  width: 100%;
+  padding: 0 clamp(4px, 2vw, 16px);
+  box-sizing: border-box;
+
+  @media (max-width: 720px) {
+    display: grid;
+  }
+
+.chessboard-btn {
+  padding: clamp(6px, 1.6vw, 10px) clamp(12px, 3vw, 20px);
+  border-radius: clamp(6px, 1.5vw, 8px);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #ffffff;
+  font-size: clamp(11px, 2.4vw, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: #00f5d4;
+    color: #00f5d4;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+}

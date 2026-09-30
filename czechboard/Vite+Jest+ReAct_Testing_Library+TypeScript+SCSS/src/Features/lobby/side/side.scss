@@ -1,4 +1,23 @@
-@import '../../App.scss';
+@import '../../../App/App.scss';
+
+.side-choice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(8, 9, 13, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: side-choice-fade 0.18s ease-out;
+}
+
+@keyframes side-choice-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 .side-choice {
   display: flex;
@@ -9,6 +28,13 @@
   min-width: 320px;
   max-width: 560px;
   width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: #0d0e12;
+  border: 1px solid rgba(157, 78, 221, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  animation: side-choice-pop 0.2s ease-out;
 
   &__header {
     display: flex;
@@ -73,6 +99,11 @@
   }
 }
 
+@keyframes side-choice-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* Одна карточка выбора */
 .side-card {
   display: flex;
@@ -81,7 +112,6 @@
   gap: 10px;
   padding: 28px 28px;
   background: #14161f;
-  // border: 1px solid rgba(157, 78, 221, 0.3);
   border-radius: 14px;
   transition: border-color 0.2s ease;
 

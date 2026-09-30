@@ -28,18 +28,20 @@ export const Lobby = ({
 }: LobbyProps) => {
   const [joinCode, setJoinCode] = useState('')
 
-  const handleCreate = () => {
-    onCreateRoom()
-  }
-
+  const handleCreate = () => onCreateRoom()
   const handleJoin = () => {
     if (!joinCode.trim()) return
     onJoinRoom(joinCode.trim().toUpperCase())
   }
 
+  // Idle-контент прячем только в состояниях, где он реально не нужен.
+  // Во время выбора стороны он должен оставаться в DOM — под blur-фоном.
+  const showIdleContent =
+    status === 'idle' || status === 'choosing-side'
+
   return (
     <div className="lobby" data-testid="lobby">
-      {status === 'idle' && (
+      {showIdleContent && (
         <>
           <h2 className="lobby__title">Сетевая игра</h2>
 
@@ -79,14 +81,6 @@ export const Lobby = ({
         </>
       )}
 
-      {status === 'choosing-side' && (
-        <SideChoice
-          onChoose={onChooseSide}
-          onRandom={onRandomSide}
-          onBack={onBackFromSideChoice}
-        />
-      )}
-
       {status === 'waiting-for-opponent' && roomCode && (
         <div className="lobby__waiting" data-testid="waiting-screen">
           <p className="lobby__label">Код вашей комнаты:</p>
@@ -119,6 +113,15 @@ export const Lobby = ({
             Соперник: {opponentConnected ? 'подключён' : 'не подключён'}
           </p>
         </div>
+      )}
+
+      {/* Модалка поверх лобби, лобби остаётся смонтированным */}
+      {status === 'choosing-side' && (
+        <SideChoice
+          onChoose={onChooseSide}
+          onRandom={onRandomSide}
+          onBack={onBackFromSideChoice}
+        />
       )}
     </div>
   )

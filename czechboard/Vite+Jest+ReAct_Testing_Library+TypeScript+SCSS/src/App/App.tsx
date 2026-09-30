@@ -1,17 +1,17 @@
 import { useCallback, useState } from 'react'
-import { ChessBoard } from './chessboard/chessboard'
-import { Lobby } from './lobby/lobby'
+import { ChessBoard } from '../Features/chessboard/chessboard'
+import { Lobby } from '../Features/lobby/lobby'
 import {
   type Piece,
   type PieceColor,
   type Square,
   initialPosition,
   isLegalMove,
-} from './chessboard/moves'
-import type { LobbyStatus, RoomCode, PlayerColor } from './lobby/types'
+} from '../Features/chessboard/moves'
+import type { LobbyStatus, RoomCode, PlayerColor } from '../Features/lobby/types'
 import './App.scss'
 
-function App() {
+export default function App() {
   const [pieces, setPieces] = useState<Piece[]>(() => initialPosition())
   const [turn, setTurn] = useState<PieceColor>('white')
   const [myColor, setMyColor] = useState<PieceColor>('white')
@@ -19,12 +19,10 @@ function App() {
   const [status, setStatus] = useState<LobbyStatus>('idle')
   const [roomCode, setRoomCode] = useState<RoomCode | null>(null)
 
-  // Шаг 1: клик «Создать игру» → переходим на выбор стороны
   const handleCreateRoom = useCallback(() => {
     setStatus('choosing-side')
   }, [])
 
-  // Шаг 2: пользователь выбрал сторону → генерируем код и ждём соперника
   const finalizeCreateRoom = useCallback((color: PlayerColor) => {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase()
     setRoomCode(code)
@@ -131,5 +129,3 @@ function App() {
     </div>
   )
 }
-
-export default App
