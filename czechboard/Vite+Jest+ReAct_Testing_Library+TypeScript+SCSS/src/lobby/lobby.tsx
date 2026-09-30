@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import './lobby.scss'
+import { SideChoice } from './side/side'
 import type { RoomCode, LobbyStatus, PlayerColor } from './types'
 
 type LobbyProps = {
   onCreateRoom: () => RoomCode
   onJoinRoom: (code: string) => void
+  onChooseSide: (color: PlayerColor) => void
+  onRandomSide: () => void
+  onBackFromSideChoice: () => void
   status: LobbyStatus
   roomCode: RoomCode | null
   myColor: PlayerColor | null
@@ -14,6 +18,9 @@ type LobbyProps = {
 export const Lobby = ({
   onCreateRoom,
   onJoinRoom,
+  onChooseSide,
+  onRandomSide,
+  onBackFromSideChoice,
   status,
   roomCode,
   myColor,
@@ -32,42 +39,52 @@ export const Lobby = ({
 
   return (
     <div className="lobby" data-testid="lobby">
-      <h2 className="lobby__title">Сетевая игра</h2>
-
       {status === 'idle' && (
-        <div className="lobby__start">
-          <button
-            type="button"
-            className="lobby__btn lobby__btn--primary"
-            onClick={handleCreate}
-            data-testid="create-room-btn"
-          >
-            Создать игру
-          </button>
+        <>
+          <h2 className="lobby__title">Сетевая игра</h2>
 
-          <div className="lobby__divider">или</div>
-
-          <div className="lobby__join">
-            <input
-              type="text"
-              className="lobby__input"
-              placeholder="Код комнаты"
-              value={joinCode}
-              maxLength={6}
-              onChange={(e) => setJoinCode(e.target.value)}
-              data-testid="join-code-input"
-            />
+          <div className="lobby__start">
             <button
+              type="button"
+              className="lobby__btn lobby__btn--primary"
+              onClick={handleCreate}
+              data-testid="create-room-btn"
+            >
+              Создать игру
+            </button>
+
+            <div className="lobby__divider">или</div>
+
+            <div className="lobby__join">
+              <input
+                type="text"
+                className="lobby__input"
+                placeholder="Код комнаты"
+                value={joinCode}
+                maxLength={6}
+                onChange={(e) => setJoinCode(e.target.value)}
+                data-testid="join-code-input"
+              />
+              <button
                 type="button"
                 className="lobby__btn"
                 onClick={handleJoin}
                 disabled={!joinCode.trim()}
                 data-testid="join-room-btn"
-            >
-              Подключиться
-            </button>
+              >
+                Подключиться
+              </button>
+            </div>
           </div>
-        </div>
+        </>
+      )}
+
+      {status === 'choosing-side' && (
+        <SideChoice
+          onChoose={onChooseSide}
+          onRandom={onRandomSide}
+          onBack={onBackFromSideChoice}
+        />
       )}
 
       {status === 'waiting-for-opponent' && roomCode && (

@@ -8,7 +8,7 @@ import {
   initialPosition,
   isLegalMove,
 } from './chessboard/moves'
-import type { LobbyStatus, RoomCode } from './lobby/types'
+import type { LobbyStatus, RoomCode, PlayerColor } from './lobby/types'
 import './App.scss'
 
 function App() {
@@ -19,17 +19,36 @@ function App() {
   const [status, setStatus] = useState<LobbyStatus>('idle')
   const [roomCode, setRoomCode] = useState<RoomCode | null>(null)
 
-  // Заглушки: сервера нет, всё живёт только в этом браузере.
+  // Шаг 1: клик «Создать игру» → переходим на выбор стороны
   const handleCreateRoom = useCallback(() => {
+    setStatus('choosing-side')
+  }, [])
+
+  // Шаг 2: пользователь выбрал сторону → генерируем код и ждём соперника
+  const finalizeCreateRoom = useCallback((color: PlayerColor) => {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase()
     setRoomCode(code)
+    setMyColor(color)
     setStatus('waiting-for-opponent')
-    setMyColor('white')
+  }, [])
+
+  const handleChooseSide = useCallback(
+    (color: PlayerColor) => {
+      finalizeCreateRoom(color)
+    },
+    [finalizeCreateRoom],
+  )
+
+  const handleRandomSide = useCallback(() => {
+    const color: PlayerColor = Math.random() < 0.5 ? 'white' : 'black'
+    finalizeCreateRoom(color)
+  }, [finalizeCreateRoom])
+
+  const handleBackFromSideChoice = useCallback(() => {
+    setStatus('idle')
   }, [])
 
   const handleJoinRoom = useCallback((_code: string) => {
-    // Без сервера код некуда отправить и не с чем сверить.
-    // Заглушка: считаем, что подключение всегда успешно.
     setStatus('connected')
     setMyColor('black')
     setOpponentConnected(true)
@@ -56,15 +75,7 @@ function App() {
 
   return (
     <div className="app">
-      <Lobby
-        onCreateRoom={handleCreateRoom}
-        onJoinRoom={handleJoinRoom}
-        status={status}
-        roomCode={roomCode}
-        myColor={myColor}
-        opponentConnected={opponentConnected}
-      />
-
+      
       <h1 className="app-title">
         <span className="app-title__crown">♔</span>
         <span className="app-title__text">Шахматы</span>
@@ -79,6 +90,33 @@ function App() {
           aria-live="polite"
         >
           Ход {turn === 'white' ? 'белых' : 'чёрных'}
+        </div>
+      )}
+
+      <Lobby
+        onCreateRoom={handleCreateRoom}
+        onJoinRoom={handleJoinRoom}
+        onChooseSide={handleChooseSide}
+        onRandomSide={handleRandomSide}
+        onBackFromSideChoice={handleBackFromSideChoice}
+        status={status}
+        roomCode={roomCode}
+        myColor={myColor}
+        opponentConnected={opponentConnected}
+      />
+
+      {inRoom && (
+        <div className="game-info">
+          <div className="game-info__item">
+            Вы играете за:{' '}
+            <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
+          </div>
+          <div className="game-info__item">
+            Соперник:{' '}
+            <strong className={opponentConnected ? 'ok' : 'wait'}>
+              {opponentConnected ? 'подключён' : 'ожидание…'}
+            </strong>
+          </div>
         </div>
       )}
 

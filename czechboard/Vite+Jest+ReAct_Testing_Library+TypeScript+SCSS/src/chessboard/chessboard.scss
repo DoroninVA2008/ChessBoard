@@ -1,32 +1,41 @@
 @import '../App.scss';
 
-$square-size: 60px;
+:root {
+  /* Ячейка масштабируется от 28px до 60px.
+     10vw подобран так, чтобы 8 ячеек + координаты + отступы влезали. */
+  --square-size: clamp(28px, 10vw, 60px);
+  --board-size: calc(var(--square-size) * 8);
+  --coord-size: clamp(10px, 2.5vw, 16px);
+  --piece-font-size: calc(var(--square-size) * 0.8);
+}
 
 .chessboard-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: clamp(6px, 1.5vw, 12px);
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(4px, 1vw, 12px);
+  box-sizing: border-box;
 }
 
-/* Контейнер доски с координатами */
 .chessboard-with-coords {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: clamp(2px, 0.6vw, 4px);
 }
 
 .chessboard-row {
   display: flex;
   align-items: stretch;
-  gap: 4px;
+  gap: clamp(2px, 0.6vw, 4px);
 }
 
-/* Блок координат */
 .chessboard-coords {
   display: flex;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  font-size: clamp(9px, 1.6vw, 12px);
   font-weight: 500;
   user-select: none;
 
@@ -37,102 +46,70 @@ $square-size: 60px;
     line-height: 1;
   }
 
-  /* Сверху и снизу: буквы по горизонтали */
   &--top,
   &--bottom {
     flex-direction: row;
 
     .chessboard-coords__label {
-      width: $square-size;
-      height: 16px;
+      width: var(--square-size);
+      height: var(--coord-size);
     }
-
     .chessboard-coords__corner {
-      width: 16px;
-      height: 16px;
+      width: var(--coord-size);
+      height: var(--coord-size);
     }
   }
 
-  /* Слева и справа: цифры по вертикали */
   &--left,
   &--right {
     flex-direction: column;
 
     .chessboard-coords__label {
-      width: 16px;
-      height: $square-size;
+      width: var(--coord-size);
+      height: var(--square-size);
     }
-
     .chessboard-coords__corner {
-      width: 16px;
-      height: 16px;
+      width: var(--coord-size);
+      height: var(--coord-size);
     }
   }
 }
 
-/* Сама доска */
 .chessboard {
   position: relative;
-  width: calc(#{$square-size} * 8);
-  height: calc(#{$square-size} * 8);
+  width: var(--board-size);
+  height: var(--board-size);
   border: 2px solid #333;
+  max-width: 100%;
+  box-sizing: content-box;
 }
 
 .squares-layer {
   display: grid;
-  grid-template-columns: repeat(8, $square-size);
-  grid-template-rows: repeat(8, $square-size);
+  grid-template-columns: repeat(8, var(--square-size));
+  grid-template-rows: repeat(8, var(--square-size));
   width: 100%;
   height: 100%;
-}
-
-.square {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  cursor: pointer;
-  border: none;
-  padding: 0;
-  position: relative;
-
-  &.light { background: $lightpoint; }
-  &.dark  { background: $darkpoint; }
-
-  &.legal::after {
-    content: '';
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: $focus;
-    pointer-events: none;
-  }
-
-  &.legal.capture::after {
-    width: 40px;
-    height: 40px;
-    background: transparent;
-    border: 4px solid $backpage;
-    border-radius: 50%;
-  }
 }
 
 .pieces-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* 100% для translate фигур = размер доски */
 }
 
 .piece {
   position: absolute;
   top: 0;
   left: 0;
-  width: $square-size;
-  height: $square-size;
+  /* размер = ровно одна клетка, без знания --square-size в px */
+  width: calc(100% / 8);
+  height: calc(100% / 8);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  font-size: var(--piece-font-size);
   user-select: none;
   will-change: transform;
   transition: transform 0.3s ease-out;
@@ -141,9 +118,9 @@ $square-size: 60px;
   cursor: grab;
 
   &--white {
-  color: transparent;
-  -webkit-text-stroke: 1px #ffffff;
-}
+    color: transparent;
+    -webkit-text-stroke: 1px #ffffff;
+  }
 
   &--black {
     color: #111;
@@ -166,22 +143,30 @@ $square-size: 60px;
 .piece--inactive {
   cursor: default;
 }
-/* ===== Кнопки управления под доской ===== */
+
+/* ===== Кнопки управления ===== */
 .chessboard-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: clamp(6px, 2vw, 12px);
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 40px;
+  width: 100%;
+  padding: 0 clamp(4px, 2vw, 16px);
+  box-sizing: border-box;
+
+  @media (max-width: 720px) {
+    display: grid;
+  }
 }
 
 .chessboard-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: clamp(6px, 1.6vw, 10px) clamp(12px, 3vw, 20px);
+  border-radius: clamp(6px, 1.5vw, 8px);
   border: 2px solid rgba(255, 255, 255, 0.5);
   background: transparent;
   color: #ffffff;
-  font-size: 14px;
+  font-size: clamp(11px, 2.4vw, 14px);
   font-weight: 500;
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;

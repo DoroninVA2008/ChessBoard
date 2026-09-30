@@ -2,6 +2,7 @@ export type RoomCode = string
 
 export type LobbyStatus =
   | 'idle'
+  | 'choosing-side'          // ← НОВЫЙ статус
   | 'waiting-for-opponent'
   | 'joining'
   | 'connected'

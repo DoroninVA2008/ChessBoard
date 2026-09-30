@@ -12,16 +12,17 @@ test.describe('Лобби: создание и подключение', () => {
     await expect(page.getByTestId('join-room-btn')).toBeVisible()
   })
 
-  test('создание комнаты показывает код и экран ожидания', async ({ page }) => {
-    await page.getByTestId('create-room-btn').click()
+  test('создание комнаты: выбор стороны → код → экран ожидания', async ({ page }) => {
+  await page.getByTestId('create-room-btn').click()
+  await page.getByTestId('choose-white-btn').click()
 
-    await expect(page.getByTestId('waiting-screen')).toBeVisible()
-    await expect(page.getByTestId('room-code')).toBeVisible()
+  await expect(page.getByTestId('waiting-screen')).toBeVisible()
+  await expect(page.getByTestId('room-code')).toBeVisible()
 
-    const code = await page.getByTestId('room-code').textContent()
-    expect(code).toBeTruthy()
-    expect(code!.length).toBeGreaterThanOrEqual(4)
-  })
+  const code = await page.getByTestId('room-code').textContent()
+  expect(code).toBeTruthy()
+  expect(code!.length).toBeGreaterThanOrEqual(4)
+})
 
   test('создатель видит, что он играет за белых', async ({ page }) => {
     await page.getByTestId('create-room-btn').click()
@@ -52,4 +53,45 @@ test.describe('Лобби: создание и подключение', () => {
     await page.getByTestId('join-code-input').fill('ABC123')
     await expect(page.getByTestId('join-room-btn')).toBeEnabled()
   })
+
+  test('клик по «Создать игру» показывает экран выбора стороны', async ({ page }) => {
+  await page.getByTestId('create-room-btn').click()
+
+  await expect(page.getByTestId('side-choice')).toBeVisible()
+  await expect(page.getByTestId('choose-white-btn')).toBeVisible()
+  await expect(page.getByTestId('choose-black-btn')).toBeVisible()
+  await expect(page.getByTestId('random-side-btn')).toBeVisible()
+  await expect(page.getByTestId('back-btn')).toBeVisible()
+})
+
+test('выбор белых показывает комнату с кодом и «Вы играете за белых»', async ({ page }) => {
+  await page.getByTestId('create-room-btn').click()
+  await page.getByTestId('choose-white-btn').click()
+
+  await expect(page.getByTestId('waiting-screen')).toBeVisible()
+  await expect(page.getByTestId('my-color')).toContainText('белых')
+})
+
+test('выбор чёрных показывает комнату с кодом и «Вы играете за чёрных»', async ({ page }) => {
+  await page.getByTestId('create-room-btn').click()
+  await page.getByTestId('choose-black-btn').click()
+
+  await expect(page.getByTestId('waiting-screen')).toBeVisible()
+  await expect(page.getByTestId('my-color')).toContainText('чёрных')
+})
+
+test('кнопка «Назад» возвращает на экран создания игры', async ({ page }) => {
+  await page.getByTestId('create-room-btn').click()
+  await page.getByTestId('back-btn').click()
+
+  await expect(page.getByTestId('create-room-btn')).toBeVisible()
+  await expect(page.getByTestId('join-code-input')).toBeVisible()
+})
+
+test('случайный выбор ведёт в комнату', async ({ page }) => {
+  await page.getByTestId('create-room-btn').click()
+  await page.getByTestId('random-side-btn').click()
+
+  await expect(page.getByTestId('waiting-screen')).toBeVisible()
+})
 })

@@ -1,8 +1,15 @@
-$backpage: #0d0e12;
+$backpage: #0D111A;
 $darkpoint: #14161f;
 $lightpoint: #9d4edd;
-$focus: #00f5d4;
+$accent: #00F2C2;
 $fontshrift: 'Segoe UI';
+$backomp: #161B26;
+$progress: #A232FF;
+$icon: #2D76F9;
+$focus: #FF1A53;
+$title: #FFFFFF;
+$text: #8B95A5;
+$target: #3A4250;
 
 #root {
   width: 100vw;
@@ -24,8 +31,8 @@ $fontshrift: 'Segoe UI';
   h1 {
     margin: 0;
     font-weight: 600;
-    letter-spacing: 0.8px;
-    font-size: 24px;
+    letter-spacing: clamp(0.4px, 2vw, 0.8px);
+    font-size: clamp(12px, 2vw, 24px);
     color: #fff;
   }
   .app-title {
@@ -38,13 +45,12 @@ $fontshrift: 'Segoe UI';
 /* ===== Баннер «Ход белых / чёрных» над доской ===== */
 .turn-banner {
   display: inline-block;
-  padding: 6px 18px;
   margin-top: -20px;
   margin-bottom: -10px;
-  font-size: 16px;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #00f5d4;
+  letter-spacing: clamp(0.1px, 1vw, 0.4px);
+  font-size: clamp(8px, 1vw, 16px);
+  color: $accent;
   background: transparent;
   border: none;
 }
@@ -60,14 +66,14 @@ $fontshrift: 'Segoe UI';
     padding: 8px 14px;
     border: 1px solid rgba(157, 78, 221, 0.4);
     border-radius: 8px;
-    font-size: 13px;
+    font-size: clamp( 2px, 3vw, 14px);
     color: #cfc4e6;
 
     strong {
-      color: #00f5d4;
+      color: $accent;
     }
 
-    .ok   { color: #00f5d4; }
+    .ok   { color: $accent; }
     .wait { color: #f5a623; }
   }
 }

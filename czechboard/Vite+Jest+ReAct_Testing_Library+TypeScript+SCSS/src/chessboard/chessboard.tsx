@@ -1,19 +1,28 @@
 import { useState, useRef, useMemo, useCallback } from 'react'
 import './chessboard.scss'
+import { Square } from './square/square'
 import {
-  type Piece, type Square, type PieceColor,
+  type Piece, type Square as SquareType, type PieceColor,
   getLegalMoves, isLegalMove, initialPosition,
 } from './moves'
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-const SQUARE_SIZE = 60
+const CELLS = 8
 
-const squareToCoords = (square: Square) => ({
+const squareToCoords = (square: SquareType) => ({
   col: FILES.indexOf(square[0]),
   row: 8 - Number(square[1]),
 })
 
-type Drag = { id: string; offsetX: number; offsetY: number; x: number; y: number }
+// Все координаты drag — в процентах от размера клетки.
+// 100% == одна клетка, потому что фигура по размеру == клетке.
+type Drag = {
+  id: string
+  offsetXPct: number
+  offsetYPct: number
+  xPct: number
+  yPct: number
+}
 
 type HistoryEntry = {
   pieces: Piece[]
@@ -21,8 +30,8 @@ type HistoryEntry = {
 }
 
 export type MovePayload = {
-  from: Square
-  to: Square
+  from: SquareType
+  to: SquareType
   pieceId: string
   capturedId?: string
 }
@@ -54,7 +63,6 @@ export const ChessBoard = ({
     [pieces, selectedId]
   )
 
-  // Легальные ходы только для выбранной фигуры своего цвета.
   const legalMoves = useMemo(
     () =>
       selectedPiece && selectedPiece.color === turn
@@ -63,11 +71,8 @@ export const ChessBoard = ({
     [pieces, selectedPiece, turn]
   )
 
-  // ===== Координаты с учётом переворота доски =====
-
-  /** Шахматная клетка → экранная позиция (col, row). */
   const toScreen = useCallback(
-    (square: Square) => {
+    (square: SquareType) => {
       const { col, row } = squareToCoords(square)
       return {
         col: flipped ? 7 - col : col,
@@ -77,21 +82,29 @@ export const ChessBoard = ({
     [flipped]
   )
 
-  /** Экранная позиция (x, y) → шахматная клетка. */
+  // Реальный размер клетки в пикселях берём из DOM — никаких констант.
+  const getCellSize = useCallback(() => {
+    const board = boardRef.current
+    if (!board) return 1
+    return board.clientWidth / CELLS
+  }, [])
+
   const fromScreen = useCallback(
-    (x: number, y: number): Square | null => {
-      const col = Math.floor(x / SQUARE_SIZE)
-      const row = Math.floor(y / SQUARE_SIZE)
+    (x: number, y: number): SquareType | null => {
+      const cell = getCellSize()
+      if (!cell) return null
+      const col = Math.floor(x / cell)
+      const row = Math.floor(y / cell)
       if (col < 0 || col > 7 || row < 0 || row > 7) return null
       const realCol = flipped ? 7 - col : col
       const realRow = flipped ? 7 - row : row
       return `${FILES[realCol]}${8 - realRow}`
     },
-    [flipped]
+    [flipped, getCellSize]
   )
 
   const tryMove = useCallback(
-    (pieceId: string, to: Square): boolean => {
+    (pieceId: string, to: SquareType): boolean => {
       const piece = pieces.find((p) => p.id === pieceId)
       if (!piece) return false
       if (piece.color !== turn) return false
@@ -125,7 +138,7 @@ export const ChessBoard = ({
   )
 
   const handleSquareClick = useCallback(
-    (square: Square) => {
+    (square: SquareType) => {
       const pieceHere = pieces.find((p) => p.square === square)
 
       if (pieceHere) {
@@ -142,15 +155,26 @@ export const ChessBoard = ({
     [pieces, turn, selectedId, tryMove]
   )
 
-  const onPointerDown = (e: React.PointerEvent<HTMLSpanElement>, piece: Piece) => {
+  const onPointerDown = (
+    e: React.PointerEvent<HTMLSpanElement>,
+    piece: Piece
+  ) => {
     if (piece.color !== turn) return
     e.preventDefault()
     e.stopPropagation()
-    const rect = boardRef.current!.getBoundingClientRect()
-    // ВАЖНО: координаты экранные с учётом переворота
+
+    const board = boardRef.current
+    if (!board) return
+    const rect = board.getBoundingClientRect()
+    const cell = getCellSize()
     const { col, row } = toScreen(piece.square)
+
     const px = e.clientX - rect.left
     const py = e.clientY - rect.top
+
+    // локальное смещение пальца внутри клетки, в процентах от клетки
+    const localXPct = ((px - col * cell) / cell) * 100
+    const localYPct = ((py - row * cell) / cell) * 100
 
     if (typeof e.currentTarget.setPointerCapture === 'function') {
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -159,29 +183,46 @@ export const ChessBoard = ({
     setSelectedId(piece.id)
     setDrag({
       id: piece.id,
-      offsetX: px - col * SQUARE_SIZE,
-      offsetY: py - row * SQUARE_SIZE,
-      x: col * SQUARE_SIZE,
-      y: row * SQUARE_SIZE,
+      offsetXPct: localXPct,
+      offsetYPct: localYPct,
+      xPct: localXPct,
+      yPct: localYPct,
     })
   }
 
   const onPointerMove = (e: React.PointerEvent<HTMLSpanElement>) => {
     if (!drag) return
-    const rect = boardRef.current!.getBoundingClientRect()
+    const board = boardRef.current
+    if (!board) return
+    const rect = board.getBoundingClientRect()
+    const cell = getCellSize()
+
     const px = e.clientX - rect.left
     const py = e.clientY - rect.top
-    setDrag((d) => d && { ...d, x: px - d.offsetX, y: py - d.offsetY })
+
+    // позиция в процентах от клетки, минус захват
+    setDrag((d) =>
+      d && {
+        ...d,
+        xPct: (px / cell) * 100 - d.offsetXPct,
+        yPct: (py / cell) * 100 - d.offsetYPct,
+      }
+    )
   }
 
   const onPointerUp = (e: React.PointerEvent<HTMLSpanElement>) => {
     if (!drag) return
-    const rect = boardRef.current!.getBoundingClientRect()
+    const board = boardRef.current
+    if (!board) return
+    const rect = board.getBoundingClientRect()
+    const cell = getCellSize()
+
     const px = e.clientX - rect.left
     const py = e.clientY - rect.top
-    const cx = px - drag.offsetX + SQUARE_SIZE / 2
-    const cy = py - drag.offsetY + SQUARE_SIZE / 2
-    // ВАЖНО: превращаем экранные координаты в шахматную клетку с учётом переворота
+
+    // центр фигуры = позиция курсора - захват + половина клетки
+    const cx = px - (drag.offsetXPct / 100) * cell + cell / 2
+    const cy = py - (drag.offsetYPct / 100) * cell + cell / 2
     const target = fromScreen(cx, cy)
 
     if (target) tryMove(drag.id, target)
@@ -190,7 +231,6 @@ export const ChessBoard = ({
     setSelectedId(null)
   }
 
-  // ===== Кнопки управления =====
   const handleNewGame = () => {
     setPieces(initialPieces ?? initialPosition())
     setTurn(initialTurn)
@@ -211,7 +251,6 @@ export const ChessBoard = ({
     setFlipped((f) => !f)
   }
 
-  // ===== Порядок линий и колонок с учётом переворота =====
   const rankOrder = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1]
   const fileOrder = flipped ? [...FILES].reverse() : FILES
 
@@ -229,7 +268,6 @@ export const ChessBoard = ({
           <span className="chessboard-coords__corner" />
         </div>
 
-        {/* Средняя строка: цифры слева + доска + цифры справа */}
         <div className="chessboard-row">
           <div className="chessboard-coords chessboard-coords--left">
             {rankOrder.map((rank) => (
@@ -246,23 +284,17 @@ export const ChessBoard = ({
                   const square = `${file}${rank}`
                   const isDark = (FILES.indexOf(file) + rank) % 2 !== 0
                   const isLegal = legalMoves.includes(square)
-                  const isCapture = isLegal && pieces.some((p) => p.square === square)
+                  const isCapture =
+                    isLegal && pieces.some((p) => p.square === square)
 
                   return (
-                    <button
+                    <Square
                       key={square}
-                      role="gridcell"
-                      aria-label={square}
-                      data-testid={`square-${square}`}
-                      data-square={square}
-                      data-legal={isLegal}
-                      className={[
-                        'square',
-                        isDark ? 'dark' : 'light',
-                        isLegal ? 'legal' : '',
-                        isCapture ? 'capture' : '',
-                      ].join(' ')}
-                      onClick={() => handleSquareClick(square)}
+                      square={square}
+                      isDark={isDark}
+                      isLegal={isLegal}
+                      isCapture={isCapture}
+                      onClick={handleSquareClick}
                     />
                   )
                 })
@@ -272,10 +304,9 @@ export const ChessBoard = ({
             <div className="pieces-layer">
               {pieces.map((piece) => {
                 const isDragging = drag?.id === piece.id
-                // ВАЖНО: экранные координаты с учётом переворота
                 const { col, row } = toScreen(piece.square)
-                const x = isDragging ? drag!.x : col * SQUARE_SIZE
-                const y = isDragging ? drag!.y : row * SQUARE_SIZE
+                const dx = isDragging ? drag!.xPct : col * 100
+                const dy = isDragging ? drag!.yPct : row * 100
                 const isSelected = piece.id === selectedId
                 const isPlayable = piece.color === turn
 
@@ -294,8 +325,10 @@ export const ChessBoard = ({
                       isSelected ? 'selected' : '',
                       isDragging ? 'dragging' : '',
                       !isPlayable ? 'piece--inactive' : '',
-                    ].join(' ')}
-                    style={{ transform: `translate(${x}px, ${y}px)` }}
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    style={{ transform: `translate(${dx}%, ${dy}%)` }}
                     onPointerDown={(e) => onPointerDown(e, piece)}
                     onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp}
@@ -317,7 +350,6 @@ export const ChessBoard = ({
           </div>
         </div>
 
-        {/* Снизу: буквы a–h */}
         <div className="chessboard-coords chessboard-coords--bottom">
           <span className="chessboard-coords__corner" />
           {fileOrder.map((file) => (
@@ -329,7 +361,6 @@ export const ChessBoard = ({
         </div>
       </div>
 
-      {/* Кнопки управления */}
       <div className="chessboard-controls">
         <button
           type="button"
@@ -362,21 +393,11 @@ export const ChessBoard = ({
 }
 
 const WHITE_GLYPHS: Record<Piece['type'], string> = {
-  king: '♔',
-  queen: '♕',
-  rook: '♖',
-  bishop: '♗',
-  knight: '♘',
-  pawn: '♙',
+  king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙',
 }
 
 const BLACK_GLYPHS: Record<Piece['type'], string> = {
-  king: '♚',
-  queen: '♛',
-  rook: '♜',
-  bishop: '♝',
-  knight: '♞',
-  pawn: '♟',
+  king: '♚', queen: '♛', rook: '♜', bishop: '♝', knight: '♞', pawn: '♟',
 }
 
 const pieceGlyph = (p: Piece) =>

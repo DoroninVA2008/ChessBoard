@@ -1,0 +1,33 @@
+@import '../../App.scss';
+
+.square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(20px, 6vw, 40px);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  position: relative;
+  /* width/height задаёт grid-трек: repeat(8, var(--square-size)) */
+
+  &.light { background: $lightpoint; }
+  &.dark  { background: $darkpoint; }
+
+  &.legal::after {
+    content: '';
+    width: clamp(8px, 2.4vw, 16px);
+    height: clamp(8px, 2.4vw, 16px);
+    border-radius: 50%;
+    background: $focus;
+    pointer-events: none;
+  }
+
+  &.legal.capture::after {
+    width: clamp(20px, 5vw, 40px);
+    height: clamp(20px, 5vw, 40px);
+    background: transparent;
+    border: 4px solid $backpage;
+    border-radius: 50%;
+  }
+}
