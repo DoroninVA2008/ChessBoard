@@ -1,9 +1,5 @@
-export type coordsSide = 'top' | 'bottom' | 'left' | 'right'
-
-export type coordsProps = {
-  side: coordsSide
-  labels: (string | number)[]
-}
+import { type coordsProps } from './coord'
+import './coords.scss'
 
 export const Coords = ({ side, labels }: coordsProps) => {
   return (

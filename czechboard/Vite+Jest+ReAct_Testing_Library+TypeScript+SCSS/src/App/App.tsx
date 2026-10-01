@@ -1,95 +1,69 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { ChessBoard } from '../Features/chessboard/chessboard'
 import { Lobby } from '../Features/lobby/lobby'
+import { Role } from '../Features/chessboard/role/role'
+import { Step } from '../Features/chessboard/step/step'
 import {
   type Piece,
   type PieceColor,
-  type Square,
   initialPosition,
-  isLegalMove,
-} from '../Features/chessboard/moves'
+} from '../Features/chessboard/chesbor'
 import type { LobbyStatus, RoomCode, PlayerColor } from '../Features/lobby/types'
 import './App.scss'
 
 export default function App() {
-  const [pieces, setPieces] = useState<Piece[]>(() => initialPosition())
+  const [pieces, setPieces] = useState<Piece[]>(initialPosition())
   const [turn, setTurn] = useState<PieceColor>('white')
   const [myColor, setMyColor] = useState<PieceColor>('white')
   const [opponentConnected, setOpponentConnected] = useState(false)
   const [status, setStatus] = useState<LobbyStatus>('idle')
   const [roomCode, setRoomCode] = useState<RoomCode | null>(null)
 
-  const handleCreateRoom = useCallback(() => {
+  // создать комнату
+  function handleCreateRoom() {
     setStatus('choosing-side')
-  }, [])
+  }
 
-  const finalizeCreateRoom = useCallback((color: PlayerColor) => {
+  // финальное создание комнаты
+  function finalizeCreateRoom(color: PlayerColor) {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase()
     setRoomCode(code)
     setMyColor(color)
     setStatus('waiting-for-opponent')
-  }, [])
+  }
 
-  const handleChooseSide = useCallback(
-    (color: PlayerColor) => {
-      finalizeCreateRoom(color)
-    },
-    [finalizeCreateRoom],
-  )
+  function handleChooseSide(color: PlayerColor) {
+    finalizeCreateRoom(color)
+  }
 
-  const handleRandomSide = useCallback(() => {
+  function handleRandomSide() {
     const color: PlayerColor = Math.random() < 0.5 ? 'white' : 'black'
     finalizeCreateRoom(color)
-  }, [finalizeCreateRoom])
+  }
 
-  const handleBackFromSideChoice = useCallback(() => {
+  function handleBackFromSideChoice() {
     setStatus('idle')
-  }, [])
+  }
 
-  const handleJoinRoom = useCallback((_code: string) => {
+  // зайти в комнату
+  function handleJoinRoom(_code: string) {
     setStatus('connected')
     setMyColor('black')
     setOpponentConnected(true)
-  }, [])
-
-  const handleMove = useCallback(
-    (from: Square, to: Square) => {
-      const piece = pieces.find((p) => p.square === from)
-      if (!piece || piece.color !== turn || piece.color !== myColor) return
-      if (!isLegalMove(pieces, piece, to)) return
-
-      const captured = pieces.find((p) => p.square === to && p.id !== piece.id)
-      setPieces((prev) =>
-        prev
-          .filter((p) => p.id !== captured?.id)
-          .map((p) => (p.id === piece.id ? { ...p, square: to } : p)),
-      )
-      setTurn((t) => (t === 'white' ? 'black' : 'white'))
-    },
-    [pieces, turn, myColor],
-  )
+  }
 
   const inRoom = status === 'waiting-for-opponent' || status === 'connected'
 
   return (
     <div className="app">
-      
       <h1 className="app-title">
         <span className="app-title__crown">♔</span>
         <span className="app-title__text">Шахматы</span>
         <span className="app-title__crown">♚</span>
       </h1>
 
-      {inRoom && (
-        <div
-          className="turn-banner"
-          data-testid="turn-indicator"
-          role="status"
-          aria-live="polite"
-        >
-          Ход {turn === 'white' ? 'белых' : 'чёрных'}
-        </div>
-      )}
+      {inRoom && 
+        <Step turn={turn} />}
 
       <Lobby
         onCreateRoom={handleCreateRoom}
@@ -104,26 +78,17 @@ export default function App() {
       />
 
       {inRoom && (
-        <div className="game-info">
-          <div className="game-info__item">
-            Вы играете за:{' '}
-            <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
-          </div>
-          <div className="game-info__item">
-            Соперник:{' '}
-            <strong className={opponentConnected ? 'ok' : 'wait'}>
-              {opponentConnected ? 'подключён' : 'ожидание…'}
-            </strong>
-          </div>
-        </div>
+        <Role
+          myColor={myColor}
+          opponentConnected={opponentConnected}
+        />
       )}
 
       {inRoom && (
         <ChessBoard
-          pieces={pieces}
-          turn={turn}
-          myColor={myColor}
-          onMove={handleMove}
+          initialPieces={pieces}
+          initialTurn={turn}
+          className="chessboard--game"
         />
       )}
     </div>

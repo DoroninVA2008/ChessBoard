@@ -1,0 +1,24 @@
+@import '../../../App/App.scss';
+
+.game-info {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 8px;
+
+  &__item {
+    padding: 8px 14px;
+    border: 1px solid rgba(157, 78, 221, 0.4);
+    border-radius: 8px;
+    font-size: clamp( 2px, 3vw, 14px);
+    color: #cfc4e6;
+
+    strong {
+      color: $accent;
+    }
+
+    .ok   { color: $accent; }
+    .wait { color: #f5a623; }
+  }
+}

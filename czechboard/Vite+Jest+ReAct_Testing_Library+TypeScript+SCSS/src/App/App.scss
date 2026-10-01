@@ -41,39 +41,3 @@ $target: #3A4250;
     }
   }
 }
-
-/* ===== Баннер «Ход белых / чёрных» над доской ===== */
-.turn-banner {
-  display: inline-block;
-  margin-top: -20px;
-  margin-bottom: -10px;
-  font-weight: 600;
-  letter-spacing: clamp(0.1px, 1vw, 0.4px);
-  font-size: clamp(8px, 1vw, 16px);
-  color: $accent;
-  background: transparent;
-  border: none;
-}
-/* ===== Инфо об игроке и сопернике ===== */
-.game-info {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 8px;
-
-  &__item {
-    padding: 8px 14px;
-    border: 1px solid rgba(157, 78, 221, 0.4);
-    border-radius: 8px;
-    font-size: clamp( 2px, 3vw, 14px);
-    color: #cfc4e6;
-
-    strong {
-      color: $accent;
-    }
-
-    .ok   { color: $accent; }
-    .wait { color: #f5a623; }
-  }
-}

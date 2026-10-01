@@ -1,167 +1,193 @@
-export type Square = string
-export type PieceType = 'rook' | 'pawn' | 'bishop' | 'knight' | 'queen' | 'king'
-export type PieceColor = 'white' | 'black'
-export type Piece = {
-  id: string
-  type: PieceType
-  color: PieceColor
-  square: Square
+import {
+  type Piece,
+  type Square,
+  FILES,
+} from './chesbor'
+
+// ===== Вспомогательные функции =====
+
+/** Номер колонки: a=0, b=1, ..., h=7 */
+export function fileIndex(square: Square): number {
+  return FILES.indexOf(square[0])
 }
 
-const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-
-export const fileIndex = (square: Square) => FILES.indexOf(square[0])
-export const rankIndex = (square: Square) => Number(square[1])
-
-export const isOnBoard = (file: number, rank: number) =>
-  file >= 0 && file < 8 && rank >= 1 && rank <= 8
-
-export const toSquare = (file: number, rank: number): Square | null =>
-  isOnBoard(file, rank) ? `${FILES[file]}${rank}` : null
-
-const pawnDir = (color: PieceColor) => (color === 'white' ? 1 : -1)
-
-type Board = Piece[]
-
-const pieceAt = (board: Board, square: Square) =>
-  board.find((p) => p.square === square)
-
-const isSameColor = (a: Piece, b: Piece) => a.color === b.color
-
-export const getLegalMoves = (board: Board, piece: Piece): Square[] => {
-  switch (piece.type) {
-    case 'rook':   return rookMoves(board, piece)
-    case 'pawn':   return pawnMoves(board, piece)
-    case 'bishop': return slidingMoves(board, piece, [[1,1],[1,-1],[-1,1],[-1,-1]])
-    case 'knight': return knightMoves(board, piece)
-    case 'queen':  return slidingMoves(board, piece, [
-      [1,0],[-1,0],[0,1],[0,-1],
-      [1,1],[1,-1],[-1,1],[-1,-1],
-    ])
-    case 'king':   return kingMoves(board, piece)
-  }
+/** Номер строки: "1"=1, "2"=2, ..., "8"=8 */
+export function rankIndex(square: Square): number {
+  return Number(square[1])
 }
 
-const rookMoves = (board: Board, piece: Piece): Square[] =>
-  slidingMoves(board, piece, [[1,0],[-1,0],[0,1],[0,-1]])
+/** Проверяет, что клетка (file, rank) внутри доски */
+export function isOnBoard(file: number, rank: number): boolean {
+  return file >= 0 && file < 8 && rank >= 1 && rank <= 8
+}
+
+/** Превращает (file, rank) в "e4" или null, если вне доски */
+export function toSquare(file: number, rank: number): Square | null {
+  if (!isOnBoard(file, rank)) return null
+  return `${FILES[file]}${rank}`
+}
+
+/** Ищет фигуру на клетке */
+function pieceAt(board: Piece[], square: Square): Piece | undefined {
+  return board.find((p) => p.square === square)
+}
+
+/** Проверяет, что две фигуры одного цвета */
+function sameColor(a: Piece, b: Piece): boolean {
+  return a.color === b.color
+}
+
+// ===== Ходы для каждого типа фигуры =====
 
 /**
- * sdtststsrtsrt
- * @param board 
- * @param piece 
- * @param dirs 
- * @returns 
+ * Ходы по линиям: используется для ладьи, слона, ферзя.
+ * dirs — список направлений вида [df, dr].
  */
-const slidingMoves = (
-  board: Board,
+function slidingMoves(
+  board: Piece[],
   piece: Piece,
-  dirs: [number, number][]
-): Square[] => {
-  const result: Square[] = []
+  dirs: number[][],
+): Square[] {
+  const moves: Square[] = []
   const f0 = fileIndex(piece.square)
   const r0 = rankIndex(piece.square)
 
   for (const [df, dr] of dirs) {
     let f = f0 + df
     let r = r0 + dr
+
     while (isOnBoard(f, r)) {
       const sq = toSquare(f, r)!
       const target = pieceAt(board, sq)
+
       if (!target) {
-        result.push(sq)
+        // пустая клетка — можно идти дальше
+        moves.push(sq)
       } else {
-        if (!isSameColor(target, piece)) result.push(sq)
+        // чужая фигура — можно съесть, но дальше нельзя
+        if (!sameColor(target, piece)) moves.push(sq)
         break
       }
+
       f += df
       r += dr
     }
   }
-  return result
+
+  return moves
 }
 
-const pawnMoves = (board: Board, piece: Piece): Square[] => {
-  const result: Square[] = []
+function pawnMoves(board: Piece[], piece: Piece): Square[] {
+  const moves: Square[] = []
   const f = fileIndex(piece.square)
   const r = rankIndex(piece.square)
-  const dir = pawnDir(piece.color)
+
+  // белые идут вверх, чёрные — вниз
+  const dir = piece.color === 'white' ? 1 : -1
+
+  // с какой строки пешка может пойти на 2 клетки
   const startRank = piece.color === 'white' ? 2 : 7
 
-  const oneFwd = toSquare(f, r + dir)
-  if (oneFwd && !pieceAt(board, oneFwd)) {
-    result.push(oneFwd)
+  // ход на 1 клетку вперёд
+  const one = toSquare(f, r + dir)
+  if (one && !pieceAt(board, one)) {
+    moves.push(one)
+
+    // ход на 2 клетки — только с начальной позиции
     if (r === startRank) {
-      const twoFwd = toSquare(f, r + dir * 2)
-      if (twoFwd && !pieceAt(board, twoFwd)) result.push(twoFwd)
+      const two = toSquare(f, r + dir * 2)
+      if (two && !pieceAt(board, two)) moves.push(two)
     }
   }
 
+  // взятие по диагонали
   for (const df of [-1, 1]) {
     const diag = toSquare(f + df, r + dir)
     if (!diag) continue
+
     const target = pieceAt(board, diag)
-    if (target && !isSameColor(target, piece)) result.push(diag)
+    if (target && !sameColor(target, piece)) moves.push(diag)
   }
 
-  return result
+  return moves
 }
 
-const knightMoves = (board: Board, piece: Piece): Square[] => {
-  const result: Square[] = []
+function knightMoves(board: Piece[], piece: Piece): Square[] {
+  const moves: Square[] = []
   const f0 = fileIndex(piece.square)
   const r0 = rankIndex(piece.square)
-  const jumps: [number, number][] = [
-    [1,2],[2,1],[2,-1],[1,-2],
-    [-1,-2],[-2,-1],[-2,1],[-1,2],
+
+  // все 8 вариантов прыжка коня
+  const jumps = [
+    [1, 2], [2, 1], [2, -1], [1, -2],
+    [-1, -2], [-2, -1], [-2, 1], [-1, 2],
   ]
+
   for (const [df, dr] of jumps) {
     const sq = toSquare(f0 + df, r0 + dr)
     if (!sq) continue
+
     const target = pieceAt(board, sq)
-    if (!target || !isSameColor(target, piece)) result.push(sq)
+    if (!target || !sameColor(target, piece)) moves.push(sq)
   }
-  return result
+
+  return moves
 }
 
-const kingMoves = (board: Board, piece: Piece): Square[] => {
-  const result: Square[] = []
+function kingMoves(board: Piece[], piece: Piece): Square[] {
+  const moves: Square[] = []
   const f0 = fileIndex(piece.square)
   const r0 = rankIndex(piece.square)
+
+  // король ходит на 1 клетку в любую сторону
   for (let df = -1; df <= 1; df++) {
     for (let dr = -1; dr <= 1; dr++) {
       if (df === 0 && dr === 0) continue
+
       const sq = toSquare(f0 + df, r0 + dr)
       if (!sq) continue
+
       const target = pieceAt(board, sq)
-      if (!target || !isSameColor(target, piece)) result.push(sq)
+      if (!target || !sameColor(target, piece)) moves.push(sq)
     }
   }
-  return result
+
+  return moves
 }
 
-export const isLegalMove = (board: Board, piece: Piece, to: Square): boolean =>
-  getLegalMoves(board, piece).includes(to)
+// ===== Главные функции =====
 
-// ---------- Начальная расстановка ----------
+/**
+ * Возвращает список клеток, куда может пойти фигура.
+ * Не учитывает шах, рокировку и взятие на проходе —
+ * для учебного проекта этого достаточно.
+ */
+export function getLegalMoves(board: Piece[], piece: Piece): Square[] {
+  switch (piece.type) {
+    case 'rook':
+      return slidingMoves(board, piece, [[1, 0], [-1, 0], [0, 1], [0, -1]])
 
-const BACK_RANK: PieceType[] = [
-  'rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook',
-]
+    case 'bishop':
+      return slidingMoves(board, piece, [[1, 1], [1, -1], [-1, 1], [-1, -1]])
 
-export const initialPosition = (): Piece[] => {
-  const pieces: Piece[] = []
+    case 'queen':
+      return slidingMoves(board, piece, [
+        [1, 0], [-1, 0], [0, 1], [0, -1],
+        [1, 1], [1, -1], [-1, 1], [-1, -1],
+      ])
 
-  FILES.forEach((file, i) => {
-    const type = BACK_RANK[i]
+    case 'pawn':
+      return pawnMoves(board, piece)
 
-    // белые
-    pieces.push({ id: `w-${type}-${file}1`, type, color: 'white', square: `${file}1` })
-    pieces.push({ id: `w-pawn-${file}2`,    type: 'pawn', color: 'white', square: `${file}2` })
+    case 'knight':
+      return knightMoves(board, piece)
 
-    // чёрные
-    pieces.push({ id: `b-pawn-${file}7`,    type: 'pawn', color: 'black', square: `${file}7` })
-    pieces.push({ id: `b-${type}-${file}8`, type, color: 'black', square: `${file}8` })
-  })
+    case 'king':
+      return kingMoves(board, piece)
+  }
+}
 
-  return pieces
+/** Проверяет, может ли фигура пойти на клетку `to` */
+export function isLegalMove(board: Piece[], piece: Piece, to: Square): boolean {
+  return getLegalMoves(board, piece).includes(to)
 }

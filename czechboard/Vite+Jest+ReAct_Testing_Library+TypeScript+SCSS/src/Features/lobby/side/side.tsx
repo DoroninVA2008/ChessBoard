@@ -1,12 +1,6 @@
 import { useEffect } from 'react'
 import './side.scss'
-import type { PlayerColor } from '../types'
-
-type SideChoiceProps = {
-  onChoose: (color: PlayerColor) => void
-  onRandom: () => void
-  onBack: () => void
-}
+import type { SideChoiceProps } from './sides.ts'
 
 export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
   // Закрытие по Escape

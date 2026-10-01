@@ -23,56 +23,13 @@
 .chessboard-with-coords {
   display: flex;
   flex-direction: column;
-  gap: clamp(2px, 0.6vw, 4px);
+  gap: clamp(8px, 0.6vw, 16px);
 }
 
 .chessboard-row {
   display: flex;
   align-items: stretch;
-  gap: clamp(2px, 0.6vw, 4px);
-}
-
-.chessboard-coords {
-  display: flex;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: clamp(9px, 1.6vw, 12px);
-  font-weight: 500;
-  user-select: none;
-
-  &__label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
-
-  &--top,
-  &--bottom {
-    flex-direction: row;
-
-    .chessboard-coords__label {
-      width: var(--square-size);
-      height: var(--coord-size);
-    }
-    .chessboard-coords__corner {
-      width: var(--coord-size);
-      height: var(--coord-size);
-    }
-  }
-
-  &--left,
-  &--right {
-    flex-direction: column;
-
-    .chessboard-coords__label {
-      width: var(--coord-size);
-      height: var(--square-size);
-    }
-    .chessboard-coords__corner {
-      width: var(--coord-size);
-      height: var(--coord-size);
-    }
-  }
+  gap: clamp(8px, 0.6vw, 16px);
 }
 
 .chessboard {
