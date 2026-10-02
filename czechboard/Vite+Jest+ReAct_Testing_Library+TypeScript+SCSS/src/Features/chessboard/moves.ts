@@ -4,9 +4,6 @@ import {
   FILES,
 } from './chesbor'
 
-// ===== Вспомогательные функции =====
-
-/** Номер колонки: a=0, b=1, ..., h=7 */
 export function fileIndex(square: Square): number {
   return FILES.indexOf(square[0])
 }

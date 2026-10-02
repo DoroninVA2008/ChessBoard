@@ -1,4 +1,4 @@
-import type { Piece } from '../../moves'
+import type { Piece } from '../../chesbor'
 
 export type PieceProps = {
   piece: Piece
