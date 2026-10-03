@@ -1,7 +1,6 @@
 import { ChessBoard } from '../Features/chessboard/chessboard'
 import { Lobby } from '../Features/lobby/lobby'
 import { Role } from '../Features/chessboard/role/role'
-import { Step } from '../Features/chessboard/step/step'
 import { store } from './store'
 import './App.scss'
 
@@ -28,8 +27,6 @@ export default function App() {
         <span className="app-title__text">Шахматы</span>
         <span className="app-title__crown">♚</span>
       </h1>
-
-      {inRoom && <Step turn={turn} />}
 
       <Lobby
         onCreateRoom={handleCreateRoom}

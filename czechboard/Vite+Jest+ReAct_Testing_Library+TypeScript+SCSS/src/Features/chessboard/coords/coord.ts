@@ -7,7 +7,6 @@ export type coordsProps = {
   labels: (string | number)[]
 }
 
-// Утилиты координат
 export function getCellSize(boardEl: HTMLDivElement | null): number {
   if (!boardEl) return 1
   return boardEl.clientWidth / CELLS

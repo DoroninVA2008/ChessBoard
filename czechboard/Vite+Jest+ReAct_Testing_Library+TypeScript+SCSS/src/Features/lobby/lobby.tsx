@@ -1,19 +1,7 @@
 import { useState } from 'react'
 import './lobby.scss'
 import { SideChoice } from './side/side'
-import type { RoomCode, LobbyStatus, PlayerColor } from './types'
-
-type LobbyProps = {
-  onCreateRoom: () => RoomCode
-  onJoinRoom: (code: string) => void
-  onChooseSide: (color: PlayerColor) => void
-  onRandomSide: () => void
-  onBackFromSideChoice: () => void
-  status: LobbyStatus
-  roomCode: RoomCode | null
-  myColor: PlayerColor | null
-  opponentConnected: boolean
-}
+import type { LobbyProps } from './types'
 
 export const Lobby = ({
   onCreateRoom,
@@ -115,7 +103,6 @@ export const Lobby = ({
         </div>
       )}
 
-      {/* Модалка поверх лобби, лобби остаётся смонтированным */}
       {status === 'choosing-side' && (
         <SideChoice
           onChoose={onChooseSide}

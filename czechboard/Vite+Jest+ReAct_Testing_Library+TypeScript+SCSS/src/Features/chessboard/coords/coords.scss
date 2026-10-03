@@ -15,6 +15,11 @@
   gap: clamp(24px, 7vw, 48px); /* ← и тут */
   margin-top: -20px;
   height: var(--board-size);
+
+  @media (max-width: 320px) {
+    margin-top: -10px;
+    gap: clamp(22px, 6vw, 48px);
+  }
 }
 
 .chessboard-coords {

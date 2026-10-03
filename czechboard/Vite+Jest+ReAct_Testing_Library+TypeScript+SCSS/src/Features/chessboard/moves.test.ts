@@ -1,7 +1,7 @@
 import {
-  getLegalMoves, isLegalMove, initialPosition,
-  type Piece, type PieceColor, type PieceType,
+  getLegalMoves, isLegalMove
 } from './moves'
+import { initialPosition, type Piece, type PieceColor, type PieceType } from './chesbor'
 
 const mk = (
   type: PieceType,
