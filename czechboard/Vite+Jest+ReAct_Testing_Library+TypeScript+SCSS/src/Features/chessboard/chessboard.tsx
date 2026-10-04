@@ -113,35 +113,36 @@ export function ChessBoard({
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLSpanElement>, piece: Piece) {
-    if (piece.color !== turn) return
-    e.preventDefault()
-    e.stopPropagation()
+  if (piece.color !== turn) return
+  e.preventDefault()
+  e.stopPropagation()
+  if (!boardRef.current) return
 
-    if (!boardRef.current) return
+  const rect = boardRef.current.getBoundingClientRect()
+  const cell = getCellSize()
+  const { col, row } = toScreen(piece.square)
 
-    const rect = boardRef.current.getBoundingClientRect()
-    const cell = getCellSize()
-    const { col, row } = toScreen(piece.square)
+  const px = e.clientX - rect.left
+  const py = e.clientY - rect.top
 
-    const px = e.clientX - rect.left
-    const py = e.clientY - rect.top
+  // смещение пальца внутри клетки, в процентах от клетки
+  const localXPct = ((px - col * cell) / cell) * 100
+  const localYPct = ((py - row * cell) / cell) * 100
 
-    const localXPct = ((px - col * cell) / cell) * 100
-    const localYPct = ((py - row * cell) / cell) * 100
-
-    if (e.currentTarget.setPointerCapture) {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    }
-
-    setSelectedId(piece.id)
-    setDrag({
-      id: piece.id,
-      offsetXPct: localXPct,
-      offsetYPct: localYPct,
-      xPct: localXPct,
-      yPct: localYPct,
-    })
+  if (e.currentTarget.setPointerCapture) {
+    e.currentTarget.setPointerCapture(e.pointerId)
   }
+
+  setSelectedId(piece.id)
+  setDrag({
+    id: piece.id,
+    offsetXPct: localXPct,
+    offsetYPct: localYPct,
+    // ← вот ключевое: стартовая позиция = позиция клетки, а не палец
+    xPct: col * 100,
+    yPct: row * 100,
+  })
+}
 
   function onPointerMove(e: React.PointerEvent<HTMLSpanElement>) {
     if (!drag || !boardRef.current) return
