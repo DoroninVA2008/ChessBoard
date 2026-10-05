@@ -14,7 +14,6 @@ import {
 } from './chesbor'
 import { getLegalMoves, isLegalMove } from './moves'
 import { Square as SquareComp } from './square/square'
-import { Step } from './step/step'
 import { Pieces } from './pieces/pieces'
 import { Coords } from './coords/coords'
 import { ChessButtons } from './chesbutons/chesbutons'
@@ -113,36 +112,36 @@ export function ChessBoard({
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLSpanElement>, piece: Piece) {
-  if (piece.color !== turn) return
-  e.preventDefault()
-  e.stopPropagation()
-  if (!boardRef.current) return
+    if (piece.color !== turn) return
+    e.preventDefault()
+    e.stopPropagation()
+    if (!boardRef.current) return
 
-  const rect = boardRef.current.getBoundingClientRect()
-  const cell = getCellSize()
-  const { col, row } = toScreen(piece.square)
+    const rect = boardRef.current.getBoundingClientRect()
+    const cell = getCellSize()
+    const { col, row } = toScreen(piece.square)
 
-  const px = e.clientX - rect.left
-  const py = e.clientY - rect.top
+    const px = e.clientX - rect.left
+    const py = e.clientY - rect.top
 
-  // смещение пальца внутри клетки, в процентах от клетки
-  const localXPct = ((px - col * cell) / cell) * 100
-  const localYPct = ((py - row * cell) / cell) * 100
+    // смещение пальца внутри клетки, в процентах от клетки
+    const localXPct = ((px - col * cell) / cell) * 100
+    const localYPct = ((py - row * cell) / cell) * 100
 
-  if (e.currentTarget.setPointerCapture) {
-    e.currentTarget.setPointerCapture(e.pointerId)
+    if (e.currentTarget.setPointerCapture) {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
+
+    setSelectedId(piece.id)
+    setDrag({
+      id: piece.id,
+      offsetXPct: localXPct,
+      offsetYPct: localYPct,
+      // стартовая позиция = позиция клетки, а не палец
+      xPct: col * 100,
+      yPct: row * 100,
+    })
   }
-
-  setSelectedId(piece.id)
-  setDrag({
-    id: piece.id,
-    offsetXPct: localXPct,
-    offsetYPct: localYPct,
-    // ← вот ключевое: стартовая позиция = позиция клетки, а не палец
-    xPct: col * 100,
-    yPct: row * 100,
-  })
-}
 
   function onPointerMove(e: React.PointerEvent<HTMLSpanElement>) {
     if (!drag || !boardRef.current) return
@@ -202,12 +201,8 @@ export function ChessBoard({
   const rankOrder = flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1]
   const fileOrder = flipped ? [...FILES].reverse() : FILES
 
-    return (
+  return (
     <div className={`chessboard-wrapper ${className || ''}`}>
-  <Step turn={turn} />
-
-  <div className="chessboard-with-coords">
-
       <div className="chessboard-with-coords">
         <Coords side="top" labels={fileOrder} />
 
@@ -264,7 +259,6 @@ export function ChessBoard({
         onFlip={handleFlip}
         canUndo={history.length > 0}
       />
-    </div>
     </div>
   )
 }

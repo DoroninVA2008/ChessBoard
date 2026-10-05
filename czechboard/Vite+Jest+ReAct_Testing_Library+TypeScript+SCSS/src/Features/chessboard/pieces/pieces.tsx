@@ -1,4 +1,4 @@
-import { PieceItem } from './piece/piece'
+import { PieceItem } from '../../../entities/piece/piece'
 import { type PiecesProps } from './propes'
 import './pieces.scss'
 

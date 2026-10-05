@@ -2,8 +2,8 @@
 
 .turn-banner {
   display: inline-block;
-  margin-top: -20px;
-  margin-bottom: 20px;
+  /* margin-top: -20px;
+  margin-bottom: clamp(12px, 2vw, 20px); */
   font-weight: 600;
   letter-spacing: clamp(0.1px, 1vw, 0.4px);
   font-size: clamp(8px, 1vw, 16px);

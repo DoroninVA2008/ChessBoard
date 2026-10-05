@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import './lobby.scss'
 import { SideChoice } from './side/side'
+import { Role } from './role/role'
+import { Step } from './step/step'
 import type { LobbyProps } from './types'
 
 export const Lobby = ({
@@ -13,6 +15,7 @@ export const Lobby = ({
   roomCode,
   myColor,
   opponentConnected,
+  turn,
 }: LobbyProps) => {
   const [joinCode, setJoinCode] = useState('')
 
@@ -75,15 +78,17 @@ export const Lobby = ({
           <p className="lobby__code" data-testid="room-code">
             {roomCode}
           </p>
+          <p className="lobby__hint">
+            Передайте код другу, чтобы он подключился.
+          </p>
           {myColor && (
-            <p className="lobby__color" data-testid="my-color">
-              Вы играете за:{' '}
-              <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
-            </p>
+            <Role myColor={myColor} opponentConnected={opponentConnected} />
           )}
-          <p className="lobby__hint">Передайте код другу, чтобы он подключился.</p>
-          <p className="lobby__status">Ожидание соперника…</p>
         </div>
+      )}
+
+      {(status === 'waiting-for-opponent' || status === 'connected') && (
+        <Step turn={turn} />
       )}
 
       {(status === 'joining' || status === 'connected') && (
