@@ -23,6 +23,7 @@ export function ChessBoard({
   initialTurn = 'white',
   className,
   onMove,
+  onTurnChange, 
 }: Props = {}) {
   const [pieces, setPieces] = useState<Piece[]>(initialPieces || initialPosition())
   const [turn, setTurn] = useState<PieceColor>(initialTurn)
@@ -91,8 +92,12 @@ export function ChessBoard({
       })
     }
 
+    const nextTurn = turn === 'white' ? 'black' : 'white'
+
+    if (onTurnChange) onTurnChange(nextTurn)     // ← ДОБАВИТЬ
+
     setSelectedId(null)
-    setTurn(turn === 'white' ? 'black' : 'white')
+    setTurn(nextTurn)
     return true
   }
 
@@ -183,6 +188,7 @@ export function ChessBoard({
     setTurn(initialTurn)
     setSelectedId(null)
     setHistory([])
+    if (onTurnChange) onTurnChange(initialTurn)   // ← ДОБАВИТЬ
   }
 
   function handleUndo() {
@@ -192,6 +198,7 @@ export function ChessBoard({
     setTurn(last.turn)
     setHistory(history.slice(0, -1))
     setSelectedId(null)
+    if (onTurnChange) onTurnChange(last.turn)     // ← ДОБАВИТЬ
   }
 
   function handleFlip() {

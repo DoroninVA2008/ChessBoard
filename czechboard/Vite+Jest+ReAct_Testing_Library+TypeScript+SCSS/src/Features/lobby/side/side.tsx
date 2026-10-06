@@ -1,6 +1,10 @@
 import { useEffect } from 'react'
 import './side.scss'
 import type { SideChoiceProps } from './sides.ts'
+import { White } from '../../../entities/white/white'
+import { Black } from '../../../entities/black/black'
+import { Random } from '../../../entities/random/random'
+import { Back } from '../../../entities/back/back'
 
 export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
   // Закрытие по Escape
@@ -46,14 +50,7 @@ export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
             <p className="side-card__desc">
               Ходят первыми. Задают темп партии. Классический выбор для тех, кто любит атаковать.
             </p>
-            <button
-              type="button"
-              className="side-card__btn"
-              onClick={() => onChoose('white')}
-              data-testid="choose-white-btn"
-            >
-              Играть за белых
-            </button>
+            <White onChoose={onChoose} />
           </article>
 
           <article className="side-card" data-testid="side-card-black">
@@ -62,34 +59,13 @@ export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
             <p className="side-card__desc">
               Ходят вторыми. Отвечают на ход соперника. Выбор для тех, кто любит контратаку и стратегию.
             </p>
-            <button
-              type="button"
-              className="side-card__btn"
-              onClick={() => onChoose('black')}
-              data-testid="choose-black-btn"
-            >
-              Играть за чёрных
-            </button>
+            <Black onChoose={onChoose} />
           </article>
         </div>
 
         <div className="side-choice__actions">
-          <button
-            type="button"
-            className="side-choice__btn"
-            onClick={onRandom}
-            data-testid="random-side-btn"
-          >
-            Случайный выбор
-          </button>
-          <button
-            type="button"
-            className="side-choice__btn"
-            onClick={onBack}
-            data-testid="back-btn"
-          >
-            Назад
-          </button>
+          <Random onRandom={onRandom} />
+          <Back onBack={onBack} />
         </div>
       </div>
     </div>

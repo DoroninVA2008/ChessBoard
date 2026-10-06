@@ -22,4 +22,18 @@
     .ok   { color: $accent; }
     .wait { color: #f5a623; }
   }
+
+  &__itest {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: clamp(10px, 2vw, 14px);
+    color: #cfc4e6;
+
+    strong {
+      color: $accent;
+    }
+
+    .ok   { color: $accent; }
+    .wait { color: #f5a623; }
+  }
 }

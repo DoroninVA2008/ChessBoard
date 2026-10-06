@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './lobby.scss'
+import { Create } from '../../entities/create/create'
+import { Connect } from '../../entities/connect/connect'
 import { SideChoice } from './side/side'
 import { Role } from './role/role'
 import { Step } from './step/step'
@@ -25,8 +27,6 @@ export const Lobby = ({
     onJoinRoom(joinCode.trim().toUpperCase())
   }
 
-  // Idle-контент прячем только в состояниях, где он реально не нужен.
-  // Во время выбора стороны он должен оставаться в DOM — под blur-фоном.
   const showIdleContent =
     status === 'idle' || status === 'choosing-side'
 
@@ -37,14 +37,7 @@ export const Lobby = ({
           <h2 className="lobby__title">Сетевая игра</h2>
 
           <div className="lobby__start">
-            <button
-              type="button"
-              className="lobby__btn lobby__btn--primary"
-              onClick={handleCreate}
-              data-testid="create-room-btn"
-            >
-              Создать игру
-            </button>
+            <Create onCreate={handleCreate} />
 
             <div className="lobby__divider">или</div>
 
@@ -58,15 +51,7 @@ export const Lobby = ({
                 onChange={(e) => setJoinCode(e.target.value)}
                 data-testid="join-code-input"
               />
-              <button
-                type="button"
-                className="lobby__btn"
-                onClick={handleJoin}
-                disabled={!joinCode.trim()}
-                data-testid="join-room-btn"
-              >
-                Подключиться
-              </button>
+              <Connect joinCode={joinCode} onJoin={handleJoin} />
             </div>
           </div>
         </>
@@ -87,18 +72,13 @@ export const Lobby = ({
         </div>
       )}
 
-      {(status === 'waiting-for-opponent' || status === 'connected') && (
-        <Step turn={turn} />
-      )}
-
       {(status === 'joining' || status === 'connected') && (
         <div className="lobby__connected" data-testid="connected-screen">
-          {myColor && (
-            <p className="lobby__color" data-testid="my-color">
-              Вы играете за:{' '}
-              <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
-            </p>
-          )}
+          
+          <div className="game-info__itest">
+            Вы играете за:{' '}
+            <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
+          </div>
           <p
             className={`lobby__opponent ${opponentConnected ? 'is-online' : 'is-offline'}`}
             data-testid="opponent-status"
@@ -106,6 +86,10 @@ export const Lobby = ({
             Соперник: {opponentConnected ? 'подключён' : 'не подключён'}
           </p>
         </div>
+      )}
+
+      {(status === 'waiting-for-opponent' || status === 'connected') && (
+        <Step turn={turn} />
       )}
 
       {status === 'choosing-side' && (

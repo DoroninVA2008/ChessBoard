@@ -1,3 +1,5 @@
+@import './app/app.scss';
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -26,7 +28,9 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
+  background: $backpage;
   // min-width: 320px;
+  // height: auto; 
   min-height: 100vh;
 }
 

@@ -3,8 +3,8 @@ import {
   type Piece,
   type PieceColor,
   initialPosition,
-} from '../Features/chessboard/chesbor'
-import type { LobbyStatus, RoomCode, PlayerColor } from '../Features/lobby/types'
+} from '../features/chessboard/chesbor'
+import type { LobbyStatus, RoomCode, PlayerColor } from '../features/lobby/types'
 
 export function store() {
   const [pieces, setPieces] = useState<Piece[]>(initialPosition())
@@ -13,11 +13,11 @@ export function store() {
   const [opponentConnected, setOpponentConnected] = useState(false)
   const [status, setStatus] = useState<LobbyStatus>('idle')
   const [roomCode, setRoomCode] = useState<RoomCode | null>(null)
-  // создать комнату
+
   function handleCreateRoom() {
     setStatus('choosing-side')
   }
-  // финальное создание комнаты
+
   function finalizeCreateRoom(color: PlayerColor) {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase()
     setRoomCode(code)
@@ -37,7 +37,7 @@ export function store() {
   function handleBackFromSideChoice() {
     setStatus('idle')
   }
-  // зайти в комнату
+
   function handleJoinRoom(_code: string) {
     setStatus('connected')
     setMyColor('black')
@@ -46,7 +46,7 @@ export function store() {
 
   const inRoom = status === 'waiting-for-opponent' || status === 'connected'
 
-  return {// состояние
+  return {
     pieces,
     setPieces,
     turn,
@@ -55,7 +55,7 @@ export function store() {
     opponentConnected,
     status,
     roomCode,
-    inRoom,// действия
+    inRoom,
     handleCreateRoom,
     handleChooseSide,
     handleRandomSide,

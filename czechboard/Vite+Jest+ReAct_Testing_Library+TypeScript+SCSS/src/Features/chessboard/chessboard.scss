@@ -18,6 +18,22 @@
   max-width: 100%;
   padding: 2px;
   box-sizing: border-box;
+
+  @media (max-height: 900px) {
+    padding: 2px 2px 0 2px !important;
+  }
+
+  & + #root {
+  @media (max-height: 900px) {
+    min-height: clamp(120vh, 3vw, 60vh) !important;
+    overflow: visible !important;
+  }
+
+  @media (max-width: 520px) {
+    min-height: clamp(120vh, 3vw, 60vh) !important;
+    overflow-x: hidden !important;
+  }
+  }
 }
 
 .chessboard-with-coords {

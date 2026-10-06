@@ -13,8 +13,10 @@ $target: #3A4250;
 
 #root {
   width: 100vw;
-  height: auto; // 100vh
+  // height: auto; 
+  min-height: 100vh;
   overflow: hidden;
+  background: $backpage;
 }
 
 .app {
@@ -22,11 +24,19 @@ $target: #3A4250;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  min-height: 100vh;
+  // min-height: 100vh;
   background: $backpage;
   color: $lightpoint;
-  padding: 2rem 2rem 0;
+  padding: 2rem;
   font-family: $fontshrift;
+
+  @media (max-height: 980px) {
+    padding: 2rem 2rem 0 2rem !important;
+  }
+
+  @media (max-height: 900px) {
+    padding: 2rem !important;
+  }
 
   h1 {
     margin: 0;

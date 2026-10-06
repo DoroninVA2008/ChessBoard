@@ -103,6 +103,7 @@
 
   &__opponent {
     margin: 0;
+    font-size: clamp( 2px, 3.4vw, 16px);
 
     &.is-online {
       color: $accent;

@@ -29,6 +29,7 @@ export type Props = {
   initialTurn?: PieceColor
   className?: string
   onMove?: (payload: MovePayload) => void
+  onTurnChange?: (turn: PieceColor) => void
 }
 
 export type DragState = {

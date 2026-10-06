@@ -1,13 +1,13 @@
 import { ChessBoard } from '../features/chessboard/chessboard'
 import { Lobby } from '../features/lobby/lobby'
-import { Role } from '../features/lobby/role/role'
 import { store } from './store'
-import './App.scss'
+import './app.scss'
 
 export default function App() {
-  const {
+    const {
     pieces,
     turn,
+    setTurn,                    // ← ДОБАВИТЬ
     myColor,
     opponentConnected,
     status,
@@ -22,12 +22,6 @@ export default function App() {
 
   return (
     <div className="app">
-      {/*<h1 className="app-title">
-        <span className="app-title__crown">♔</span>
-        <span className="app-title__text">Шахматы</span>
-        <span className="app-title__crown">♚</span>
-      </h1>*/}
-
       <Lobby
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
@@ -40,14 +34,14 @@ export default function App() {
         opponentConnected={opponentConnected}
         turn={turn}                    // ← ДОБАВИТЬ
       />
-
-      {inRoom && (
-        <ChessBoard
-          initialPieces={pieces}
-          initialTurn={turn}
-          className="chessboard--game"
-        />
-      )}
+        {inRoom && (
+          <ChessBoard
+            initialPieces={pieces}
+            initialTurn={turn}
+            className="chessboard--game"
+            onTurnChange={setTurn}
+          />
+        )}
     </div>
   )
 }
