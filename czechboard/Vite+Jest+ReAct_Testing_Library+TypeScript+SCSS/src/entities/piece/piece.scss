@@ -4,7 +4,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  /* размер = ровно одна клетка, без знания --square-size в px */
   width: calc(100% / 8);
   height: calc(100% / 8);
   display: flex;

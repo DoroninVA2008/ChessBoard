@@ -1,0 +1,22 @@
+.colors {
+    margin-top: 16px;
+    width: clamp(96%, 2vw, 100%);
+    padding: clamp(2.8px, 2vw, 14px) clamp(4px, 2vw, 20px);
+    border: none;
+    border-radius: clamp(2px, 2vw, 10px);
+    background: #00f5d4;
+    color: #0d0e12;
+    font-size: clamp(0.1em, 2vw, 1em);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+
+    &:hover {
+      background: #00d9bc;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }

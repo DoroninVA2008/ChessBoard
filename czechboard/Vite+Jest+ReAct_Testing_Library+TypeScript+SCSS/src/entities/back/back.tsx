@@ -1,10 +1,11 @@
 import type { BackProps } from './bac'
+import './back.scss'
 
 export const Back = ({ onBack }: BackProps) => {
   return (
     <button
       type="button"
-      className="side-choice__btn"
+      className="choices"
       onClick={onBack}
       data-testid="back-btn"
     >

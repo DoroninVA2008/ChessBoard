@@ -4,10 +4,10 @@ import { store } from './store'
 import './app.scss'
 
 export default function App() {
-    const {
+  const {
     pieces,
     turn,
-    setTurn,                    // ← ДОБАВИТЬ
+    setTurn,
     myColor,
     opponentConnected,
     status,

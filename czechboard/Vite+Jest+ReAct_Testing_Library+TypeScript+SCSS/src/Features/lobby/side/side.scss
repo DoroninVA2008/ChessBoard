@@ -1,4 +1,4 @@
-@import '../../../App/App.scss';
+@import '../../../app/app.scss';
 
 .side-choice-overlay {
   position: fixed;
@@ -93,24 +93,6 @@
     gap: 12px;
     justify-content: center;
     margin-top: 30px;
-  }
-
-  &__btn {
-    border: clamp(0.4px, 0.4vw, 1px) solid rgba(255, 255, 255, 0.5);
-    letter-spacing: clamp(0.1px, 100vw, 1px);
-    background: transparent;
-    color: #ffffff;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
-    padding: clamp(2.8px, 2vw, 14px) clamp(4px, 2vw, 20px);
-    border-radius: clamp(2px, 2vw, 10px);
-    font-size: clamp(0.1em, 2vw, 1em);
-
-    &:hover {
-      border-color: #00f5d4;
-      color: #00f5d4;
-    }
   }
 }
 

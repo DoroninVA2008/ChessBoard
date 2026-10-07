@@ -1,0 +1,13 @@
+.create {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid rgba(157, 78, 221, 0.6);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: clamp(3px, 3vw, 14px);
+
+    &--primary {
+      background: rgba(157, 78, 221, 0.2);
+    }
+  }

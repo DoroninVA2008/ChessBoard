@@ -1,10 +1,11 @@
 import type { WhiteProps } from './whi'
+import '../black/black.scss'
 
 export const White = ({ onChoose }: WhiteProps) => {
   return (
     <button
       type="button"
-      className="side-card__btn"
+      className="colors"
       onClick={() => onChoose('white')}
       data-testid="choose-white-btn"
     >

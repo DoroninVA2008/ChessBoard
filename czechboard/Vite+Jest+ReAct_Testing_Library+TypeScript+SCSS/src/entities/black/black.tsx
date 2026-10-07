@@ -1,10 +1,11 @@
 import type { BlackProps } from './blak'
+import './black.scss'
 
 export const Black = ({ onChoose }: BlackProps) => {
   return (
     <button
       type="button"
-      className="side-card__btn"
+      className="colors"
       onClick={() => onChoose('black')}
       data-testid="choose-black-btn"
     >

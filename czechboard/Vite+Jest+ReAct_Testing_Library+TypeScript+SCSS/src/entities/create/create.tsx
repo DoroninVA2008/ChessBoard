@@ -1,11 +1,11 @@
 import type { CreateProps } from './crea'
-// import './creat.scss'
+import './create.scss'
 
 export const Create = ({ onCreate }: CreateProps) => {
   return (
     <button
       type="button"
-      className="lobby__btn lobby__btn--primary"
+      className="create"
       onClick={onCreate}
       data-testid="create-room-btn"
     >
