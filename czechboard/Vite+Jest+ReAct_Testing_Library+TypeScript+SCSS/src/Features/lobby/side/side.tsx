@@ -7,7 +7,6 @@ import { Random } from '../../../entities/random/random'
 import { Back } from '../../../entities/back/back'
 
 export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
-  // Закрытие по Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onBack()
@@ -16,7 +15,6 @@ export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onBack])
 
-  // Клик строго по фону, не по окну
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onBack()
   }

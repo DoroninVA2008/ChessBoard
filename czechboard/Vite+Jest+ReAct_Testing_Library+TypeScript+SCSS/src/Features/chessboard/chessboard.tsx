@@ -23,7 +23,7 @@ export function ChessBoard({
   initialTurn = 'white',
   className,
   onMove,
-  onTurnChange, 
+  onTurnChange,
 }: Props = {}) {
   const [pieces, setPieces] = useState<Piece[]>(initialPieces || initialPosition())
   const [turn, setTurn] = useState<PieceColor>(initialTurn)
@@ -94,7 +94,7 @@ export function ChessBoard({
 
     const nextTurn = turn === 'white' ? 'black' : 'white'
 
-    if (onTurnChange) onTurnChange(nextTurn)     // ← ДОБАВИТЬ
+    if (onTurnChange) onTurnChange(nextTurn)
 
     setSelectedId(null)
     setTurn(nextTurn)
@@ -129,7 +129,6 @@ export function ChessBoard({
     const px = e.clientX - rect.left
     const py = e.clientY - rect.top
 
-    // смещение пальца внутри клетки, в процентах от клетки
     const localXPct = ((px - col * cell) / cell) * 100
     const localYPct = ((py - row * cell) / cell) * 100
 
@@ -142,7 +141,6 @@ export function ChessBoard({
       id: piece.id,
       offsetXPct: localXPct,
       offsetYPct: localYPct,
-      // стартовая позиция = позиция клетки, а не палец
       xPct: col * 100,
       yPct: row * 100,
     })
@@ -188,7 +186,7 @@ export function ChessBoard({
     setTurn(initialTurn)
     setSelectedId(null)
     setHistory([])
-    if (onTurnChange) onTurnChange(initialTurn)   // ← ДОБАВИТЬ
+    if (onTurnChange) onTurnChange(initialTurn)
   }
 
   function handleUndo() {
@@ -198,7 +196,7 @@ export function ChessBoard({
     setTurn(last.turn)
     setHistory(history.slice(0, -1))
     setSelectedId(null)
-    if (onTurnChange) onTurnChange(last.turn)     // ← ДОБАВИТЬ
+    if (onTurnChange) onTurnChange(last.turn)
   }
 
   function handleFlip() {
@@ -210,6 +208,11 @@ export function ChessBoard({
 
   return (
     <div className={`chessboard-wrapper ${className || ''}`}>
+      {/* 👇 Индикатор хода 
+        <div className="turn-indicator" data-testid="turn-indicator">
+          {turn === 'white' ? 'Ход белых' : 'Ход чёрных'}
+        </div>
+      */}
       <div className="chessboard-with-coords">
         <Coords side="top" labels={fileOrder} />
 

@@ -27,11 +27,17 @@ export const Lobby = ({
     onJoinRoom(joinCode.trim().toUpperCase())
   }
 
+  // Цвет для отображения: если myColor не задан, по умолчанию 'white' const displayColor = myColor ?? 'white'
+
   const showIdleContent =
     status === 'idle' || status === 'choosing-side'
 
   return (
     <div className="lobby" data-testid="lobby">
+      {/* <div className="lobby__my-color" data-testid="my-color">
+        Вы играете за {displayColor === 'white' ? 'белых' : 'чёрных'}
+      </div> */}
+
       {showIdleContent && (
         <>
           <h2 className="lobby__title">Сетевая игра</h2>
@@ -74,11 +80,6 @@ export const Lobby = ({
 
       {(status === 'joining' || status === 'connected') && (
         <div className="lobby__connected" data-testid="connected-screen">
-          
-          <div className="game-info__itest">
-            Вы играете за:{' '}
-            <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
-          </div>
           <p
             className={`lobby__opponent ${opponentConnected ? 'is-online' : 'is-offline'}`}
             data-testid="opponent-status"
