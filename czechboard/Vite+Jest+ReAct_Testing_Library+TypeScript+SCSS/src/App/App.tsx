@@ -1,9 +1,10 @@
+import ReAct from 'react'
 import { ChessBoard } from '../features/chessboard/chessboard'
 import { Lobby } from '../features/lobby/lobby'
 import { store } from './store'
 import './app.scss'
 
-export default function App() {
+export const App: ReAct.FC = () => {
   const {
     pieces,
     turn,
@@ -32,7 +33,7 @@ export default function App() {
         roomCode={roomCode}
         myColor={myColor}
         opponentConnected={opponentConnected}
-        turn={turn}                    // ← ДОБАВИТЬ
+        turn={turn}
       />
         {inRoom && (
           <ChessBoard

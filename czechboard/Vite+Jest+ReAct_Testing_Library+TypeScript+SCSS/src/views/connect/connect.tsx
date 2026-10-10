@@ -1,7 +1,8 @@
+import ReAct from 'react'
+import type { ConnectProps } from './types'
 import './connect.scss'
-import type { ConnectProps } from './connec'
 
-export const Connect = ({ joinCode, onJoin }: ConnectProps) => {
+export const Connect: ReAct.FC<ConnectProps> = ({ joinCode, onJoin }) => {
   return (
     <button
       type="button"

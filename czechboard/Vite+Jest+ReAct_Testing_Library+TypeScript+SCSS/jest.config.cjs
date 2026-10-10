@@ -8,7 +8,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|scss|sass)$': 'identity-obj-proxy',
   },
-  setupFilesAfterEnv: ['./src/Features/chessboard/tes.ts'],
+  setupFilesAfterEnv: ['./src/features/chessboard/tes.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {

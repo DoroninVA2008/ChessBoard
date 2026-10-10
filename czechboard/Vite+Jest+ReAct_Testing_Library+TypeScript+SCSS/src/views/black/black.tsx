@@ -1,7 +1,8 @@
-import type { BlackProps } from './blak'
+import ReAct from 'react'
+import type { BlackProps } from './types'
 import './black.scss'
 
-export const Black = ({ onChoose }: BlackProps) => {
+export const Black: ReAct.FC<BlackProps> = ({ onChoose }) => {
   return (
     <button
       type="button"

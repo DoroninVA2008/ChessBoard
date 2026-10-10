@@ -1,8 +1,7 @@
-import { type NewPartProps } from './newpar'
+import ReAct from 'react'
+import type { NewPartProps } from './types'
 
-export const NewPart = ({
-  onNewGame,
-}: NewPartProps) => {
+export const NewPart: ReAct.FC<NewPartProps> = ({ onNewGame }) => {
   return (
     <button
       type="button"

@@ -1,12 +1,12 @@
-import { useEffect } from 'react'
+import ReAct, { useEffect } from 'react'
 import './side.scss'
-import type { SideChoiceProps } from './sides.ts'
-import { White } from '../../../entities/white/white'
-import { Black } from '../../../entities/black/black'
-import { Random } from '../../../entities/random/random'
-import { Back } from '../../../entities/back/back'
+import type { SideChoiceProps } from './types.ts'
+import { White } from '../../../views/white/white'
+import { Black } from '../../../views/black/black'
+import { Random } from '../../../views/random/random'
+import { Back } from '../../../views/back/back'
 
-export const SideChoice = ({ onChoose, onRandom, onBack }: SideChoiceProps) => {
+export const SideChoice: ReAct.FC<SideChoiceProps> = ({ onChoose, onRandom, onBack }) => {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onBack()

@@ -1,9 +1,7 @@
-import { type UnDoProps } from './un'
+import ReAct from 'react'
+import type { UnDoProps } from './types'
 
-export const UnDo = ({
-  onUndo,
-  canUndo
-}: UnDoProps) => {
+export const UnDo: ReAct.FC<UnDoProps> = ({ onUndo, canUndo }) => {
   return (
     <button
       type="button"

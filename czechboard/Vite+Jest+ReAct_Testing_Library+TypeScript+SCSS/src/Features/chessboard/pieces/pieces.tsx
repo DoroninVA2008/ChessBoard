@@ -1,8 +1,9 @@
-import { PieceItem } from '../../../entities/piece/piece'
-import { type PiecesProps } from './propes'
+import ReAct from 'react'
+import { PieceItem } from '../../../views/piece/piece'
+import { type PiecesProps } from './types'
 import './pieces.scss'
 
-export const Pieces = ({
+export const Pieces: ReAct.FC<PiecesProps> = ({
   pieces,
   turn,
   selectedId,
@@ -13,7 +14,7 @@ export const Pieces = ({
   onPointerDown,
   onPointerMove,
   onPointerUp,
-}: PiecesProps) => {
+}) => {
   return (
     <div className="pieces-layer">
       {pieces.map((piece) => {

@@ -1,7 +1,11 @@
-import { type coordsProps } from './coord'
+import ReAct from 'react'
+import { type coordsProps } from './types'
 import './coords.scss'
 
-export const Coords = ({ side, labels }: coordsProps) => {
+export const Coords: ReAct.FC<coordsProps> = ({ 
+  side, 
+  labels 
+}) => {
   return (
     <div
       className={`chessboard-coords chessboard-coords--${side}`}

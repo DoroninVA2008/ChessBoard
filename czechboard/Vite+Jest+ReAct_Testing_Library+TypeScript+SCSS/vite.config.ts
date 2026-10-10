@@ -6,7 +6,7 @@ export default defineConfig({
   timeout: 30_000,
   resolve: { 
     alias: { 
-      '@': './src' 
+      '@': '/src' 
     }
   },
   base: '/',
@@ -15,5 +15,12 @@ export default defineConfig({
     // strictPort: true,
     open: true, 
     host: true,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 })

@@ -1,4 +1,4 @@
-import type { PieceColor } from '../../chessboard/chesbor'
+import type { PieceColor } from '../../chessboard/types'
 
 export type Prolles = {
   myColor: PieceColor

@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import ReAct, { useState } from 'react'
 import './lobby.scss'
-import { Create } from '../../entities/create/create'
-import { Connect } from '../../entities/connect/connect'
+import { Create } from '../../views/create/create'
+import { Connect } from '../../views/connect/connect'
 import { SideChoice } from './side/side'
 import { Role } from './role/role'
 import { Step } from './step/step'
+import { Lob, Lobov } from './lob'
 import type { LobbyProps } from './types'
 
-export const Lobby = ({
+export const Lobby: ReAct.FC<LobbyProps> = ({
   onCreateRoom,
   onJoinRoom,
   onChooseSide,
@@ -18,7 +19,7 @@ export const Lobby = ({
   myColor,
   opponentConnected,
   turn,
-}: LobbyProps) => {
+}) => {
   const [joinCode, setJoinCode] = useState('')
 
   const handleCreate = () => onCreateRoom()
@@ -27,17 +28,11 @@ export const Lobby = ({
     onJoinRoom(joinCode.trim().toUpperCase())
   }
 
-  // Цвет для отображения: если myColor не задан, по умолчанию 'white' const displayColor = myColor ?? 'white'
-
   const showIdleContent =
     status === 'idle' || status === 'choosing-side'
 
   return (
     <div className="lobby" data-testid="lobby">
-      {/* <div className="lobby__my-color" data-testid="my-color">
-        Вы играете за {displayColor === 'white' ? 'белых' : 'чёрных'}
-      </div> */}
-
       {showIdleContent && (
         <>
           <h2 className="lobby__title">Сетевая игра</h2>

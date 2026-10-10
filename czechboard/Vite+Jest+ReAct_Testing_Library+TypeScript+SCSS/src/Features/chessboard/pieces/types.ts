@@ -1,4 +1,4 @@
-import type { Piece, Square as SquareType } from '../chesbor'
+import type { Piece, Square as SquareType } from '../types'
 
 export type PiecesProps = {
   pieces: Piece[]

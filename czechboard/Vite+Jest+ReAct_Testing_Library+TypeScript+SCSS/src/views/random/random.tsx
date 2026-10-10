@@ -1,7 +1,8 @@
-import { type RandomProps } from './ran'
+import ReAct from 'react'
+import type { RandomProps } from './types'
 import '../back/back.scss'
 
-export const Random = ({ onRandom }: RandomProps) => {
+export const Random: ReAct.FC<RandomProps> = ({ onRandom }) => {
   return (
     <button
       type="button"

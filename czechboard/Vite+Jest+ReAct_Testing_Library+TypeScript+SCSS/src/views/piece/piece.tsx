@@ -1,7 +1,9 @@
-import { type PieceProps, pieceGlyph } from './pieprops'
+import ReAct from 'react'
+import type { PieceProps } from './types'
+import { pieceGlyph } from './pie'
 import './piece.scss'
 
-export const PieceItem = ({
+export const PieceItem: ReAct.FC<PieceProps> = ({
   piece,
   isDragging,
   isSelected,
@@ -11,7 +13,7 @@ export const PieceItem = ({
   onPointerDown,
   onPointerMove,
   onPointerUp,
-}: PieceProps) => {
+}) => {
   return (
     <span
       data-testid={`piece-${piece.id}`}

@@ -1,7 +1,8 @@
-import type { BackProps } from './bac'
+import ReAct from 'react'
+import type { BackProps } from './types'
 import './back.scss'
 
-export const Back = ({ onBack }: BackProps) => {
+export const Back: ReAct.FC<BackProps> = ({ onBack }) => {
   return (
     <button
       type="button"

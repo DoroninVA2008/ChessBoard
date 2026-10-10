@@ -1,7 +1,8 @@
-import type { Prolles } from './roll'
+import ReAct from 'react'
+import type { Prolles } from './types'
 import './role.scss'
 
-export function Role({ myColor, opponentConnected }: Prolles) {
+export const Role: ReAct.FC<Prolles> = ({ myColor, opponentConnected }) => {
   return (
     <div className="game-info">
       <div className="game-info__item">

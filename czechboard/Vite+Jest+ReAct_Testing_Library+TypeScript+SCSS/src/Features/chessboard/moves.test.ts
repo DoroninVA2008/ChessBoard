@@ -1,7 +1,5 @@
-import {
-  getLegalMoves, isLegalMove
-} from './moves'
-import { initialPosition, type Piece, type PieceColor, type PieceType } from './chesbor'
+import type { Piece, PieceColor, PieceType } from './types'
+import { getLegalMoves, isLegalMove, initialPosition } from './moves'
 
 const mk = (
   type: PieceType,

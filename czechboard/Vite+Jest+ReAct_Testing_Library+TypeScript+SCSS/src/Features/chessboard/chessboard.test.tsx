@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { ChessBoard } from './chessboard'
-import type { Piece } from './chesbor'
+import type { Piece } from './types'
 
 describe('ChessBoard: начальная расстановка', () => {
   it('на старте рендерится 32 фигуры', () => {

@@ -1,10 +1,7 @@
 import { useState } from 'react'
-import {
-  type Piece,
-  type PieceColor,
-  initialPosition,
-} from '../features/chessboard/chesbor'
+import type { Piece, PieceColor } from '../features/chessboard/types'
 import type { LobbyStatus, RoomCode, PlayerColor } from '../features/lobby/types'
+import { initialPosition } from '../features/chessboard/moves'
 
 export function store() {
   const [pieces, setPieces] = useState<Piece[]>(initialPosition())

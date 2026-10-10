@@ -1,7 +1,8 @@
-import type { WhiteProps } from './whi'
+import ReAct from 'react'
+import type { WhiteProps } from './types'
 import '../black/black.scss'
 
-export const White = ({ onChoose }: WhiteProps) => {
+export const White: ReAct.FC<WhiteProps> = ({ onChoose }) => {
   return (
     <button
       type="button"

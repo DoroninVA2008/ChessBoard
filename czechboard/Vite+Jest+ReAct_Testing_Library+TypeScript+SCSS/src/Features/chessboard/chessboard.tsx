@@ -1,30 +1,31 @@
-import { useState, useRef } from 'react'
+import ReAct, { useState, useRef } from 'react'
 import './chessboard.scss'
-import {
-  type Piece,
-  type PieceColor,
-  type Square,
-  type Props,
-  type DragState,
-  type HistoryEntry,
+import type {
+  Piece,
+  PieceColor,
+  Square,
+  Props,
+  DragState,
+  HistoryEntry,
+} from './types'
+import { getLegalMoves, 
+  isLegalMove, 
   initialPosition,
   squareToCoords,
   FILES,
-  CELLS,
-} from './chesbor'
-import { getLegalMoves, isLegalMove } from './moves'
+  CELLS } from './moves'
 import { Square as SquareComp } from './square/square'
 import { Pieces } from './pieces/pieces'
 import { Coords } from './coords/coords'
 import { ChessButtons } from './chesbutons/chesbutons'
 
-export function ChessBoard({
+export const ChessBoard: ReAct.FC<Props> = ({
   initialPieces,
   initialTurn = 'white',
   className,
   onMove,
   onTurnChange,
-}: Props = {}) {
+}) => {
   const [pieces, setPieces] = useState<Piece[]>(initialPieces || initialPosition())
   const [turn, setTurn] = useState<PieceColor>(initialTurn)
   const [selectedId, setSelectedId] = useState<string | null>(null)

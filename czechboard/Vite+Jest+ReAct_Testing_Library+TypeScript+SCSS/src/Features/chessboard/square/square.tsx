@@ -1,13 +1,14 @@
+import ReAct from 'react'
+import { type SquareProps } from './types'
 import './square.scss'
-import { type SquareProps } from './squrops'
 
-export const Square = ({
+export const Square: ReAct.FC<SquareProps> = ({
   square,
   isDark,
   isLegal = false,
   isCapture = false,
   onClick,
-}: SquareProps) => {
+}) => {
   return (
     <button
       type="button"

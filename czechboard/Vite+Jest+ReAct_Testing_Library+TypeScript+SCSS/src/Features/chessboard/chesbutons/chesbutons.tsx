@@ -1,9 +1,11 @@
-import { NewPart } from '../../../entities/newpart/newpart'
-import { UnDo } from '../../../entities/undo/undo'
-import { Flip } from '../../../entities/flip/flip'
+import ReAct from 'react'
+import { NewPart } from '../../../views/newpart/newpart'
+import { UnDo } from '../../../views/undo/undo'
+import { Flip } from '../../../views/flip/flip'
+import type { ChessButtonsProps } from './types'
 import './chesbutons.scss'
 
-export const ChessButtons = ({
+export const ChessButtons: ReAct.FC<ChessButtonsProps> = ({
   onNewGame,
   onUndo,
   onFlip,

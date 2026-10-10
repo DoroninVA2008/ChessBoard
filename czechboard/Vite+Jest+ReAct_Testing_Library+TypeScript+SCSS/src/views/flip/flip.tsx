@@ -1,8 +1,7 @@
-import { type FliProps } from './fli'
+import ReAct from 'react'
+import type { FliProps } from './types'
 
-export const Flip = ({
-  onFlip,
-}: FliProps) => {
+export const Flip: ReAct.FC<FliProps> = ({ onFlip }) => {
   return (
     <button
       type="button"

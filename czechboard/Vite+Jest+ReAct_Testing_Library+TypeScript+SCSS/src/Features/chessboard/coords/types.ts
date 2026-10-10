@@ -1,4 +1,5 @@
-import { FILES, CELLS, squareToCoords, type Square, type DragState } from '../chesbor'
+import { FILES, CELLS, squareToCoords } from '../moves'
+import { type Square } from '../types'
 
 export type coordsSide = 'top' | 'bottom' | 'left' | 'right'
 
