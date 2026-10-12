@@ -5,7 +5,7 @@ import { Connect } from '../../views/connect/connect'
 import { SideChoice } from './side/side'
 import { Role } from './role/role'
 import { Step } from './step/step'
-import { Lob, Lobov } from './lob'
+import { Lob, Lobov, Lobovs } from './lob'
 import type { LobbyProps } from './types'
 
 export const Lobby: ReAct.FC<LobbyProps> = ({

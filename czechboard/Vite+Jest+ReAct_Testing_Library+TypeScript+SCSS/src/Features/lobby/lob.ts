@@ -1,7 +1,8 @@
 import type { RoomCode } from './types'
-import { AxiosAPIXML } from '../../shared/axiosxml.api'
+import { AxiosAPIGETXML, AxiosAPIPOSTXML } from '../../shared/axiosxml.api'
 
-const apiXML: RoomCode = 'http://localhost:3000'
+const apiXML: RoomCode =  'http://localhost:1449/' || '/' || 'http://localhost:3000/'
 
-export const Lob = AxiosAPIXML(`${apiXML}/api`)
-export const Lobov = AxiosAPIXML(`${apiXML}/room`)
+export const Lob = AxiosAPIGETXML(`${apiXML}api`)
+export const Lobov = AxiosAPIGETXML(`${apiXML}room`)
+export const Lobovs = AxiosAPIPOSTXML(`${apiXML}api/rooms`)
