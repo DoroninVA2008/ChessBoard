@@ -5,7 +5,6 @@ import { Connect } from '../../views/connect/connect'
 import { SideChoice } from './side/side'
 import { Role } from './role/role'
 import { Step } from './step/step'
-import { Lob, Lobov, Lobovs } from './lob'
 import type { LobbyProps } from './types'
 
 export const Lobby: ReAct.FC<LobbyProps> = ({
@@ -19,17 +18,17 @@ export const Lobby: ReAct.FC<LobbyProps> = ({
   myColor,
   opponentConnected,
   turn,
+  error,
 }) => {
   const [joinCode, setJoinCode] = useState('')
 
-  const handleCreate = () => onCreateRoom()
   const handleJoin = () => {
-    if (!joinCode.trim()) return
-    onJoinRoom(joinCode.trim().toUpperCase())
+    const code = joinCode.trim().toUpperCase()
+    if (!code) return
+    onJoinRoom(code)
   }
 
-  const showIdleContent =
-    status === 'idle' || status === 'choosing-side'
+  const showIdleContent = status === 'idle' || status === 'choosing-side'
 
   return (
     <div className="lobby" data-testid="lobby">
@@ -38,7 +37,7 @@ export const Lobby: ReAct.FC<LobbyProps> = ({
           <h2 className="lobby__title">Сетевая игра</h2>
 
           <div className="lobby__start">
-            <Create onCreate={handleCreate} />
+            <Create onCreate={onCreateRoom} />
 
             <div className="lobby__divider">или</div>
 
@@ -54,6 +53,8 @@ export const Lobby: ReAct.FC<LobbyProps> = ({
               />
               <Connect joinCode={joinCode} onJoin={handleJoin} />
             </div>
+
+            {error && <p className="lobby__error">{error}</p>}
           </div>
         </>
       )}

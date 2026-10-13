@@ -14,6 +14,7 @@ export const App: ReAct.FC = () => {
     status,
     roomCode,
     inRoom,
+    error,
     handleCreateRoom,
     handleChooseSide,
     handleRandomSide,
@@ -34,15 +35,16 @@ export const App: ReAct.FC = () => {
         myColor={myColor}
         opponentConnected={opponentConnected}
         turn={turn}
+        error={error}
       />
-        {inRoom && (
-          <ChessBoard
-            initialPieces={pieces}
-            initialTurn={turn}
-            className="chessboard--game"
-            onTurnChange={setTurn}
-          />
-        )}
+      {inRoom && (
+        <ChessBoard
+          initialPieces={pieces}
+          initialTurn={turn}
+          className="chessboard--game"
+          onTurnChange={setTurn}
+        />
+      )}
     </div>
   )
 }
