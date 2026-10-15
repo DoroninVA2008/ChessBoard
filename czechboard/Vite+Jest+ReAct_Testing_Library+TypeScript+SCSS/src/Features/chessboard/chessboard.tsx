@@ -209,67 +209,56 @@ export const ChessBoard: ReAct.FC<Props> = ({
 
   return (
     <div className={`chessboard-wrapper ${className || ''}`}>
-      {/* 👇 Индикатор хода 
-        <div className="turn-indicator" data-testid="turn-indicator">
-          {turn === 'white' ? 'Ход белых' : 'Ход чёрных'}
-        </div>
-      */}
       <div className="chessboard-with-coords">
         <Coords side="top" labels={fileOrder} />
+          <div className="chessboard-row">
+            <Coords side="left" labels={rankOrder} />
+              <div className="chessboard" role="grid" ref={boardRef}>
+                <div className="squares-layer">
+                  {rankOrder.map((rank) =>
+                    fileOrder.map((file) => {
+                      const square = `${file}${rank}`
+                      const isDark = (FILES.indexOf(file) + rank) % 2 !== 0
+                      const isLegal = legalMoves.includes(square)
+                      const isCapture =
+                        isLegal && pieces.some((p) => p.square === square)
 
-        <div className="chessboard-row">
-          <Coords side="left" labels={rankOrder} />
-
-          <div className="chessboard" role="grid" ref={boardRef}>
-            <div className="squares-layer">
-              {rankOrder.map((rank) =>
-                fileOrder.map((file) => {
-                  const square = `${file}${rank}`
-                  const isDark = (FILES.indexOf(file) + rank) % 2 !== 0
-                  const isLegal = legalMoves.includes(square)
-                  const isCapture =
-                    isLegal && pieces.some((p) => p.square === square)
-
-                  return (
-                    <SquareComp
-                      key={square}
-                      square={square}
-                      isDark={isDark}
-                      isLegal={isLegal}
-                      isCapture={isCapture}
-                      onClick={handleSquareClick}
-                    />
-                  )
-                })
-              )}
+                        return (
+                          <SquareComp
+                            key={square}
+                            square={square}
+                            isDark={isDark}
+                            isLegal={isLegal}
+                            isCapture={isCapture}
+                            onClick={handleSquareClick}
+                          />
+                        )
+                    })
+                  )}
+                </div>
+                  <Pieces
+                    pieces={pieces}
+                    turn={turn}
+                    selectedId={selectedId}
+                    draggingId={drag ? drag.id : null}
+                    dragXPct={drag ? drag.xPct : null}
+                    dragYPct={drag ? drag.yPct : null}
+                    toScreen={toScreen}
+                    onPointerDown={onPointerDown}
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                  />
+              </div>
+                <Coords side="right" labels={rankOrder} />
             </div>
-
-            <Pieces
-              pieces={pieces}
-              turn={turn}
-              selectedId={selectedId}
-              draggingId={drag ? drag.id : null}
-              dragXPct={drag ? drag.xPct : null}
-              dragYPct={drag ? drag.yPct : null}
-              toScreen={toScreen}
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-            />
-          </div>
-
-          <Coords side="right" labels={rankOrder} />
-        </div>
-
-        <Coords side="bottom" labels={fileOrder} />
+              <Coords side="bottom" labels={fileOrder} />
       </div>
-
-      <ChessButtons
-        onNewGame={handleNewGame}
-        onUndo={handleUndo}
-        onFlip={handleFlip}
-        canUndo={history.length > 0}
-      />
+        <ChessButtons
+          onNewGame={handleNewGame}
+          onUndo={handleUndo}
+          onFlip={handleFlip}
+          canUndo={history.length > 0}
+        />
     </div>
   )
 }

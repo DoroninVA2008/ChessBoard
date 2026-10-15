@@ -16,7 +16,6 @@ export interface RoomSocketOptions {
   token: string
   onState: (state: RoomStateFromServer) => void
   onConnected?: () => void
-  /** Вызывается сразу после SUBSCRIBE — чтобы клиент дёрнул GET /api/rooms/{code} */
   onSubscribed?: () => void
   onDisconnected?: () => void
   onError?: (error: string) => void
@@ -38,7 +37,6 @@ export function openRoomSocket(options: RoomSocketOptions): RoomSocket {
   } = options
 
   const client = new Client({
-    // Vite-прокси: тот же origin, что фронт, /ws → ws://127.0.0.1:8080/ws
     brokerURL: `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`,
 
     connectHeaders: { roomCode: code, playerToken: token },
@@ -48,14 +46,12 @@ export function openRoomSocket(options: RoomSocketOptions): RoomSocket {
     heartbeatOutgoing: 10000,
 
     debug: (msg) => {
-      // STOMP-клиент логирует все фреймы через этот колбэк
       console.log('[STOMP]', msg)
     },
 
     onConnect: () => {
       onConnected?.()
 
-      // Подписываемся на топик своей комнаты
       client.subscribe(`/topic/rooms/${code}`, (message: IMessage) => {
         try {
           const state = JSON.parse(message.body) as RoomStateFromServer
@@ -64,10 +60,7 @@ export function openRoomSocket(options: RoomSocketOptions): RoomSocket {
           console.error('Failed to parse room state:', e, message.body)
         }
       })
-
-      // Сообщаем наружу, что подписка установлена.
-      // Клиент должен дёрнуть GET /api/rooms/{code}, чтобы не пропустить
-      // первый снимок состояния (broadcast мог уйти до SUBSCRIBE).
+      
       onSubscribed?.()
     },
 

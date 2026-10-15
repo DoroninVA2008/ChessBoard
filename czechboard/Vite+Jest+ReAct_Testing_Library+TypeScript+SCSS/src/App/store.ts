@@ -6,8 +6,8 @@ import {
   createRoom,
   joinRoom,
   getRoom,
-  type ColorChoice,
 } from '../features/lobby/lob'
+import type { ColorChoice } from '../features/lobby/types'
 import {
   openRoomSocket,
   type RoomSocket,
@@ -26,7 +26,6 @@ function fromServerColor(color: 'white' | 'black'): PlayerColor {
   return color
 }
 
-// RoomState — общая структура, приходит и из WS-топика, и внутри getRoom().state
 function applyRoomState(
   state: RoomStateFromServer,
   setters: {
@@ -58,10 +57,7 @@ export function store() {
   const [status, setStatus] = useState<LobbyStatus>('idle')
   const [roomCode, setRoomCode] = useState<RoomCode | null>(null)
   const [error, setError] = useState<string | null>(null)
-
   const socketRef = useRef<RoomSocket | null>(null)
-
-  // ─── Создание комнаты ────────────────────────────────────────────
 
   function handleCreateRoom() {
     setError(null)
@@ -101,8 +97,6 @@ export function store() {
     setError(null)
   }
 
-  // ─── Подключение к комнате ───────────────────────────────────────
-
   async function handleJoinRoom(code: string) {
     setError(null)
     try {
@@ -122,8 +116,6 @@ export function store() {
     }
   }
 
-  // ─── Восстановление сессии при перезагрузке страницы ─────────────
-
   useEffect(() => {
     if (import.meta.env.DEV) return
 
@@ -138,10 +130,7 @@ export function store() {
       .then((info) => {
         if (cancelled) return
 
-        // getRoom возвращает { color, state }
         setRoomCode(info.state.code)
-
-        // Цвет: берём из ответа бэка (надёжно), а не из localStorage
         setMyColor(fromServerColor(info.color))
         localStorage.setItem(COLOR_KEY, info.color)
 
@@ -160,8 +149,6 @@ export function store() {
     }
   }, [])
 
-  // ─── WebSocket: real-time обновления от бэка ─────────────────────
-
   useEffect(() => {
     if (status !== 'waiting-for-opponent' && status !== 'connected') {
       return
@@ -179,19 +166,16 @@ export function store() {
       code,
       token,
 
-      // WS-топик присылает RoomState напрямую (без обёртки { color, state })
       onState: (state) => applyRoomState(state, setters),
 
       onConnected: () => {
         console.log('[WS] connected to room', code)
       },
 
-      // После SUBSCRIBE — дернуть GET /api/rooms/{code}
       onSubscribed: () => {
         console.log('[WS] subscribed, fetching initial state via REST')
         getRoom(code, token)
           .then((info) => {
-            // 👇 Ключевое: передаём info.state, а не info
             applyRoomState(info.state, setters)
           })
           .catch((e) => console.error('[WS] initial getRoom failed:', e))

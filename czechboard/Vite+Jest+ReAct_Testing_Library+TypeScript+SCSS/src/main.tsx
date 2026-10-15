@@ -5,6 +5,4 @@ import { App } from './app/app'
 
 const root: HTMLElement = document.getElementById('root')!;
 
-createRoot(root).render(
-  <App />,
-)
+createRoot(root).render(<App />)

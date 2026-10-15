@@ -1,11 +1,11 @@
 import ReAct, { useState } from 'react'
 import './lobby.scss'
+import type { LobbyProps } from './types'
 import { Create } from '../../views/create/create'
 import { Connect } from '../../views/connect/connect'
 import { SideChoice } from './side/side'
 import { Role } from './role/role'
 import { Step } from './step/step'
-import type { LobbyProps } from './types'
 
 export const Lobby: ReAct.FC<LobbyProps> = ({
   onCreateRoom,

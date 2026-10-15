@@ -2,6 +2,7 @@ import type { PieceColor } from '../chessboard/types'
 
 export type LobbyStatus = | 'idle' | 'choosing-side' | 'waiting-for-opponent' | 'joining' | 'connected'
 export type PlayerColor = 'white' | 'black'
+export type ColorChoice = 'WHITE' | 'BLACK' | 'RANDOM'
 export type RoomCode = string
 export type LobbyProps = {
   onCreateRoom: () => void 
@@ -14,4 +15,5 @@ export type LobbyProps = {
   myColor: PlayerColor | null
   opponentConnected: boolean
   turn: PieceColor
+  error: any
 }

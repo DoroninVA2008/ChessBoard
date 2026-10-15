@@ -1,10 +1,6 @@
 import type { AxiosRequestConfig } from 'axios'
 import { api } from './api/api'
 
-/**
- * Универсальный request — принимает метод, URL, тело и конфиг.
- * Все запросы к бэку идут через эту функцию.
- */
 export async function request<TResponse, TBody = unknown>(options: {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   url: string
@@ -23,7 +19,6 @@ export async function request<TResponse, TBody = unknown>(options: {
   return response.data
 }
 
-// Удобные обёртки для конкретных методов
 export function AxiosAPIGETXML<T>(
   url: string,
   config?: AxiosRequestConfig,
@@ -45,6 +40,14 @@ export function AxiosAPIPUTXML<T, B = unknown>(
   config?: AxiosRequestConfig,
 ): Promise<T> {
   return request<T, B>({ method: 'PUT', url, body, config })
+}
+
+export function AxiosAPIPATCHXML<T, B = unknown>(
+  url: string,
+  body?: B,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  return request<T, B>({ method: 'PATCH', url, body, config })
 }
 
 export function AxiosAPIDELETEXML<T>(

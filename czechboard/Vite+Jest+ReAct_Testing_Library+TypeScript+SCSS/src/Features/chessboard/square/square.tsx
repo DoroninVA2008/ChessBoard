@@ -1,5 +1,5 @@
 import ReAct from 'react'
-import { type SquareProps } from './types'
+import type { SquareProps } from './types'
 import './square.scss'
 
 export const Square: ReAct.FC<SquareProps> = ({
