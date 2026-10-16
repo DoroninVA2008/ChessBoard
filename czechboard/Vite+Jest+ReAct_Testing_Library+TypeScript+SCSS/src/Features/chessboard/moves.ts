@@ -102,7 +102,7 @@ function slidingMoves(
         moves.push(sq)
       } else {
         if (!sameColor(target, piece)) moves.push(sq)
-        break
+          break
       }
 
       f += df

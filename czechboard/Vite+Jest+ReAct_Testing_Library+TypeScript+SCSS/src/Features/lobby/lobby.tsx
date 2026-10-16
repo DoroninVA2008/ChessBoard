@@ -4,8 +4,9 @@ import type { LobbyProps } from './types'
 import { Create } from '../../views/create/create'
 import { Connect } from '../../views/connect/connect'
 import { SideChoice } from './side/side'
-import { Role } from './role/role'
+import { Code } from './code/code'
 import { Step } from './step/step'
+import { Status } from './status/status'
 
 export const Lobby: ReAct.FC<LobbyProps> = ({
   onCreateRoom,
@@ -60,29 +61,11 @@ export const Lobby: ReAct.FC<LobbyProps> = ({
       )}
 
       {status === 'waiting-for-opponent' && roomCode && (
-        <div className="lobby__waiting" data-testid="waiting-screen">
-          <p className="lobby__label">Код вашей комнаты:</p>
-          <p className="lobby__code" data-testid="room-code">
-            {roomCode}
-          </p>
-          <p className="lobby__hint">
-            Передайте код другу, чтобы он подключился.
-          </p>
-          {myColor && (
-            <Role myColor={myColor} opponentConnected={opponentConnected} />
-          )}
-        </div>
+        <Code roomCode={roomCode} myColor={myColor} opponentConnected={opponentConnected} />
       )}
 
       {(status === 'joining' || status === 'connected') && (
-        <div className="lobby__connected" data-testid="connected-screen">
-          <p
-            className={`lobby__opponent ${opponentConnected ? 'is-online' : 'is-offline'}`}
-            data-testid="opponent-status"
-          >
-            Соперник: {opponentConnected ? 'подключён' : 'не подключён'}
-          </p>
-        </div>
+        <Status opponentConnected={opponentConnected} />
       )}
 
       {(status === 'waiting-for-opponent' || status === 'connected') && (
