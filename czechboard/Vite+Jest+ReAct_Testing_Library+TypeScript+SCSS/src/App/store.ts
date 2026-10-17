@@ -1,18 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { configureStore, createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
 import type { Piece, PieceColor } from '../features/chessboard/types'
-import type { LobbyStatus, RoomCode, PlayerColor } from '../features/lobby/types'
+import type { LobbyStatus, RoomCode, PlayerColor, ColorChoice } from '../features/lobby/types'
 import { initialPosition } from '../features/chessboard/moves'
-import {
-  createRoom,
-  joinRoom,
-  getRoom,
-} from '../features/lobby/lob'
-import type { ColorChoice } from '../features/lobby/types'
-import {
-  openRoomSocket,
-  type RoomSocket,
-  type RoomStateFromServer,
-} from '../shared/ws/room'
+import { createRoom, joinRoom, getRoom } from '../features/lobby/lob'
+import { openRoomSocket, type RoomSocket, type RoomStateFromServer } from '../shared/ws/room'
 
 const TOKEN_KEY = 'chess.roomToken'
 const CODE_KEY = 'chess.roomCode'
@@ -26,185 +19,285 @@ function fromServerColor(color: 'white' | 'black'): PlayerColor {
   return color
 }
 
-function applyRoomState(
-  state: RoomStateFromServer,
-  setters: {
-    setTurn: (t: PieceColor) => void
-    setOpponentConnected: (v: boolean) => void
-    setStatus: (s: LobbyStatus) => void
-  },
-) {
-  const { setTurn, setOpponentConnected, setStatus } = setters
+let roomSocketRef: RoomSocket | null = null
 
-  setTurn(state.turn)
+interface LobbyState {
+  pieces: Piece[]
+  turn: PieceColor
+  myColor: PlayerColor
+  opponentConnected: boolean
+  status: LobbyStatus
+  roomCode: RoomCode | null
+  error: string | null
+}
+
+const initialState: LobbyState = {
+  pieces: initialPosition(),
+  turn: 'white',
+  myColor: 'white',
+  opponentConnected: false,
+  status: 'idle',
+  roomCode: null,
+  error: null,
+}
+
+const createRoomThunk = createAsyncThunk<{ code: string; color: PlayerColor; token: string }, PlayerColor, { rejectValue: string }>('lobby/createRoom', async (color, { rejectWithValue }) => {
+  try {
+    const result = await createRoom(toColorChoice(color))
+    localStorage.setItem(TOKEN_KEY, result.token)
+    localStorage.setItem(CODE_KEY, result.code)
+    localStorage.setItem(COLOR_KEY, result.color)
+    return { code: result.code, color: result.color, token: result.token }
+  } catch (e) {
+    return rejectWithValue(
+      e instanceof Error ? e.message : 'Не удалось создать комнату',
+    )
+  }
+})
+
+const joinRoomThunk = createAsyncThunk<
+  { code: string; color: PlayerColor; token: string },
+  string,
+  { rejectValue: string }
+>('lobby/joinRoom', async (code, { rejectWithValue }) => {
+  try {
+    const result = await joinRoom(code.toUpperCase())
+    localStorage.setItem(TOKEN_KEY, result.token)
+    localStorage.setItem(CODE_KEY, result.code)
+    localStorage.setItem(COLOR_KEY, result.color)
+    return { code: result.code, color: result.color, token: result.token }
+  } catch (e) {
+    return rejectWithValue(
+      e instanceof Error ? e.message : 'Не удалось подключиться',
+    )
+  }
+})
+
+const restoreSessionThunk = createAsyncThunk<
+  { state: RoomStateFromServer; color: PlayerColor } | null,
+  void,
+  { rejectValue: string }
+>('lobby/restoreSession', async (_, { rejectWithValue }) => {
+  const token = localStorage.getItem(TOKEN_KEY)
+  const code = localStorage.getItem(CODE_KEY)
+  if (!token || !code) return null
+
+  try {
+    const info = await getRoom(code, token)
+    localStorage.setItem(COLOR_KEY, info.color)
+    return { state: info.state, color: info.color }
+  } catch (e) {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(CODE_KEY)
+    localStorage.removeItem(COLOR_KEY)
+    return rejectWithValue(
+      e instanceof Error ? e.message : 'restore failed',
+    )
+  }
+})
+
+function applyRoomStateToDraft(
+  draft: LobbyState,
+  state: RoomStateFromServer,
+) {
+  draft.turn = state.turn
 
   const whiteConnected = state.players?.white?.connected === true
   const blackConnected = state.players?.black?.connected === true
-  setOpponentConnected(whiteConnected && blackConnected)
+  draft.opponentConnected = whiteConnected && blackConnected
 
   if (state.status === 'ready' || state.status === 'playing') {
-    setStatus('connected')
+    draft.status = 'connected'
   } else if (state.status === 'waiting') {
-    setStatus('waiting-for-opponent')
+    draft.status = 'waiting-for-opponent'
   }
 }
 
-export function store() {
-  const [pieces, setPieces] = useState<Piece[]>(initialPosition())
-  const [turn, setTurn] = useState<PieceColor>('white')
-  const [myColor, setMyColor] = useState<PlayerColor>('white')
-  const [opponentConnected, setOpponentConnected] = useState(false)
-  const [status, setStatus] = useState<LobbyStatus>('idle')
-  const [roomCode, setRoomCode] = useState<RoomCode | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const socketRef = useRef<RoomSocket | null>(null)
+const lobbySlice = createSlice({
+  name: 'lobby',
+  initialState,
+  reducers: {
+    openSideChoice(state) {
+      state.error = null
+      state.status = 'choosing-side'
+    },
 
-  function handleCreateRoom() {
-    setError(null)
-    setStatus('choosing-side')
-  }
+    backFromSideChoice(state) {
+      state.status = 'idle'
+      state.error = null
+    },
 
-  async function finalizeCreateRoom(color: PlayerColor) {
-    setError(null)
-    try {
-      const result = await createRoom(toColorChoice(color))
+    clearError(state) {
+      state.error = null
+    },
 
-      localStorage.setItem(TOKEN_KEY, result.token)
-      localStorage.setItem(CODE_KEY, result.code)
-      localStorage.setItem(COLOR_KEY, result.color)
+    roomStateReceived(state, action: PayloadAction<RoomStateFromServer>) {
+      applyRoomStateToDraft(state, action.payload)
+    },
+  },
 
-      setRoomCode(result.code)
-      setMyColor(fromServerColor(result.color))
-      setStatus('waiting-for-opponent')
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Не удалось создать комнату'
-      setError(msg)
-      console.error('createRoom failed:', e)
-      setStatus('idle')
-    }
-  }
+  extraReducers: (builder) => {
+    builder.addCase(createRoomThunk.pending, (state) => {
+      state.error = null
+    })
+    builder.addCase(createRoomThunk.fulfilled, (state, action) => {
+      state.roomCode = action.payload.code
+      state.myColor = fromServerColor(action.payload.color)
+      state.status = 'waiting-for-opponent'
+    })
+    builder.addCase(createRoomThunk.rejected, (state, action) => {
+      state.error = action.payload ?? 'Не удалось создать комнату'
+      state.status = 'idle'
+    })
 
-  function handleChooseSide(color: PlayerColor) {
-    void finalizeCreateRoom(color)
-  }
+    builder.addCase(joinRoomThunk.pending, (state) => {
+      state.error = null
+    })
+    builder.addCase(joinRoomThunk.fulfilled, (state, action) => {
+      state.roomCode = action.payload.code
+      state.myColor = fromServerColor(action.payload.color)
+      state.status = 'connected'
+    })
+    builder.addCase(joinRoomThunk.rejected, (state, action) => {
+      state.error = action.payload ?? 'Не удалось подключиться'
+    })
 
-  function handleRandomSide() {
-    void finalizeCreateRoom('white')
-  }
+    builder.addCase(restoreSessionThunk.fulfilled, (state, action) => {
+      if (!action.payload) return
+      state.roomCode = action.payload.state.code
+      state.myColor = fromServerColor(action.payload.color)
+      applyRoomStateToDraft(state, action.payload.state)
+    })
+    builder.addCase(restoreSessionThunk.rejected, (state) => {
+      state.status = 'idle'
+    })
+  },
+})
 
-  function handleBackFromSideChoice() {
-    setStatus('idle')
-    setError(null)
-  }
+const {
+  openSideChoice,
+  backFromSideChoice,
+  // clearError,
+  roomStateReceived,
+} = lobbySlice.actions
 
-  async function handleJoinRoom(code: string) {
-    setError(null)
-    try {
-      const result = await joinRoom(code.toUpperCase())
+export const store = configureStore({
+  reducer: {
+    lobby: lobbySlice.reducer,
+  },
+})
 
-      localStorage.setItem(TOKEN_KEY, result.token)
-      localStorage.setItem(CODE_KEY, result.code)
-      localStorage.setItem(COLOR_KEY, result.color)
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
 
-      setRoomCode(result.code)
-      setMyColor(fromServerColor(result.color))
-      setStatus('connected')
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Не удалось подключиться'
-      setError(msg)
-      console.error('joinRoom failed:', e)
-    }
-  }
+const useAppDispatch: () => AppDispatch = useDispatch
+const useAppSelector = useSelector.withTypes<RootState>()
+
+export function useReduxStore() {
+  const dispatch = useAppDispatch()
+
+  const pieces = useAppSelector((s) => s.lobby.pieces)
+  const turn = useAppSelector((s) => s.lobby.turn)
+  const myColor = useAppSelector((s) => s.lobby.myColor)
+  const opponentConnected = useAppSelector((s) => s.lobby.opponentConnected)
+  const status = useAppSelector((s) => s.lobby.status)
+  const roomCode = useAppSelector((s) => s.lobby.roomCode)
+  const error = useAppSelector((s) => s.lobby.error)
 
   useEffect(() => {
     if (import.meta.env.DEV) return
+    dispatch(restoreSessionThunk())
+  }, [dispatch])
 
-  const token = localStorage.getItem(TOKEN_KEY)
-  const code = localStorage.getItem(CODE_KEY)
-    const savedColor = localStorage.getItem(COLOR_KEY) as PlayerColor | null
-    if (!token || !code) return
-
-    let cancelled = false
-
-    getRoom(code, token)
-      .then((info) => {
-        if (cancelled) return
-
-        setRoomCode(info.state.code)
-        setMyColor(fromServerColor(info.color))
-        localStorage.setItem(COLOR_KEY, info.color)
-
-        applyRoomState(info.state, { setTurn, setOpponentConnected, setStatus })
-      })
-      .catch((e) => {
-        if (cancelled) return
-        console.warn('restore session failed:', e)
-        localStorage.removeItem(TOKEN_KEY)
-        localStorage.removeItem(CODE_KEY)
-        localStorage.removeItem(COLOR_KEY)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
+  // ---------- ЭФФЕКТ: WebSocket ----------
   useEffect(() => {
     if (status !== 'waiting-for-opponent' && status !== 'connected') {
       return
     }
-
-    if (socketRef.current) return
+    if (roomSocketRef) return
 
     const token = localStorage.getItem(TOKEN_KEY)
     const code = localStorage.getItem(CODE_KEY)
     if (!token || !code) return
 
-    const setters = { setTurn, setOpponentConnected, setStatus }
+    const setters = {
+      onState: (state: RoomStateFromServer) =>
+        dispatch(roomStateReceived(state)),
+    }
 
-    const socket = openRoomSocket({
+    const ws = openRoomSocket({
       code,
       token,
-
-      onState: (state) => applyRoomState(state, setters),
-
+      onState: (state) => setters.onState(state),
       onConnected: () => {
         console.log('[WS] connected to room', code)
       },
-
       onSubscribed: () => {
         console.log('[WS] subscribed, fetching initial state via REST')
         getRoom(code, token)
           .then((info) => {
-            applyRoomState(info.state, setters)
+            dispatch(roomStateReceived(info.state))
           })
           .catch((e) => console.error('[WS] initial getRoom failed:', e))
       },
-
       onDisconnected: () => {
         console.log('[WS] disconnected from room', code)
       },
-
       onError: (msg) => {
         console.error('[WS] error:', msg)
       },
     })
 
-    socketRef.current = socket
+    roomSocketRef = ws
 
     return () => {
-      socket.disconnect()
-      socketRef.current = null
+      ws.disconnect()
+      roomSocketRef = null
     }
-  }, [status])
+  }, [status, dispatch])
+
+  function handleCreateRoom() {
+    dispatch(openSideChoice())
+  }
+
+  function finalizeCreateRoom(color: PlayerColor) {
+    dispatch(createRoomThunk(color))
+  }
+
+  function handleChooseSide(color: PlayerColor) {
+    finalizeCreateRoom(color)
+  }
+
+  function handleRandomSide() {
+    const color: PlayerColor = Math.random() < 0.5 ? 'white' : 'black'
+    finalizeCreateRoom(color)
+  }
+
+  function handleBackFromSideChoice() {
+    dispatch(backFromSideChoice())
+  }
+
+  function handleJoinRoom(code: string) {
+    dispatch(joinRoomThunk(code))
+  }
 
   const inRoom = status === 'waiting-for-opponent' || status === 'connected'
 
   return {
     pieces,
-    setPieces,
+    setPieces: (p: Piece[] | ((prev: Piece[]) => Piece[])) => {
+      console.warn(
+        '[store] setPieces is not implemented in the Redux version yet',
+        p,
+      )
+    },
     turn,
-    setTurn,
+    setTurn: (t: PieceColor) => {
+      console.warn(
+        '[store] setTurn is not implemented in the Redux version yet',
+        t,
+      )
+    },
     myColor,
     opponentConnected,
     status,

@@ -1,5 +1,6 @@
 import ReAct from 'react'
 import type { StatusProps } from './types'
+import './status.scss'
 
 export const Status: ReAct.FC<StatusProps> = ({ opponentConnected }) => {
   return (

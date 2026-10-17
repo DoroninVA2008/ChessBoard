@@ -1,8 +1,8 @@
 import ReAct from 'react'
+import { useReduxStore } from './store'
+import './app.scss'
 import { ChessBoard } from '../features/chessboard/chessboard'
 import { Lobby } from '../features/lobby/lobby'
-import { store } from './store'
-import './app.scss'
 
 export const App: ReAct.FC = () => {
   const {
@@ -20,7 +20,7 @@ export const App: ReAct.FC = () => {
     handleRandomSide,
     handleBackFromSideChoice,
     handleJoinRoom,
-  } = store()
+  } = useReduxStore()
 
   return (
     <div className="app">

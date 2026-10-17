@@ -1,21 +1,14 @@
 import ReAct from 'react'
+import { Chos } from './chos/chos'
+import { Opponent } from './opponent/opponent'
 import type { Prolles } from './types'
 import './role.scss'
 
 export const Role: ReAct.FC<Prolles> = ({ myColor, opponentConnected }) => {
   return (
     <div className="game-info">
-      <div className="game-info__item">
-        Вы играете за:{' '}
-        <strong>{myColor === 'white' ? 'белых' : 'чёрных'}</strong>
-      </div>
-
-      <div className="game-info__item">
-        Соперник:{' '}
-        <strong className={opponentConnected ? 'ok' : 'wait'}>
-          {opponentConnected ? 'подключён' : 'ожидание…'}
-        </strong>
-      </div>
+      <Chos myColor={myColor} />
+        <Opponent opponentConnected={opponentConnected} />
     </div>
   )
 }
