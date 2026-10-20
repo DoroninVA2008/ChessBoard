@@ -209,7 +209,6 @@ export function useReduxStore() {
     dispatch(restoreSessionThunk())
   }, [dispatch])
 
-  // ---------- ЭФФЕКТ: WebSocket ----------
   useEffect(() => {
     if (status !== 'waiting-for-opponent' && status !== 'connected') {
       return

@@ -1,6 +1,6 @@
 import ReAct from 'react'
 import { PieceItem } from '../../../views/piece/piece'
-import { type PiecesProps } from './types'
+import type { PiecesProps } from './types'
 import './pieces.scss'
 
 export const Pieces: ReAct.FC<PiecesProps> = ({

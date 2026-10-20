@@ -1,5 +1,5 @@
 import { FILES, CELLS, squareToCoords } from '../moves'
-import { type Square } from '../types'
+import type { Square } from '../types'
 
 export function getCellSize(boardEl: HTMLDivElement | null): number {
   if (!boardEl) return 1
@@ -8,6 +8,7 @@ export function getCellSize(boardEl: HTMLDivElement | null): number {
 
 export function toScreen(square: Square, flipped: boolean) {
   const { col, row } = squareToCoords(square)
+
   return {
     col: flipped ? 7 - col : col,
     row: flipped ? 7 - row : row,

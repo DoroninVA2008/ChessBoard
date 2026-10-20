@@ -1,0 +1,22 @@
+@import '../../../../app/app.scss';
+
+.choicer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chown {
+  font-size: clamp(0.6em, 2vw, 1.6em);
+  line-height: 1;
+  color: $accent;
+}
+
+.choitle {
+  margin: 0;
+  font-size: clamp(0.6em, 2vw, 1.5em);
+  font-weight: 700;
+  letter-spacing: clamp(2px, 10vw, 0.2px);
+  color: #ffffff;
+  text-transform: uppercase;
+}

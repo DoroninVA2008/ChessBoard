@@ -1,5 +1,5 @@
 import ReAct from 'react'
-import type { WhiteProps } from './types'
+import type { WhiteProps } from '../../features/lobby/side/whice/types'
 import '../black/black.scss'
 
 export const White: ReAct.FC<WhiteProps> = ({ onChoose }) => {

@@ -31,11 +31,4 @@
   font-size: clamp(9px, 1.6vw, 12px);
   font-weight: 500;
   user-select: none;
-
-  &__label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
 }
