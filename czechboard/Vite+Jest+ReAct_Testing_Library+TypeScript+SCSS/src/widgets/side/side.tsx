@@ -1,11 +1,11 @@
 import ReAct, { useEffect } from 'react'
 import './side.scss'
 import type { SideChoiceProps } from './types.ts'
-import { Choice } from './choice/choice'
-import { Whice } from './whice/whice.tsx'
-import { Blace } from './blace/blace.tsx'
-import { Random } from '../../../views/random/random'
-import { Back } from '../../../views/back/back'
+import { Choice } from '../../views/choice/choice'
+import { Whice } from '../whice/whice.tsx'
+import { Blace } from '../../views/blace/blace.tsx'
+import { Random } from '../../views/random/random'
+import { Back } from '../../views/back/back'
 
 export const SideChoice: ReAct.FC<SideChoiceProps> = ({ onChoose, onRandom, onBack }) => {
   useEffect(() => {

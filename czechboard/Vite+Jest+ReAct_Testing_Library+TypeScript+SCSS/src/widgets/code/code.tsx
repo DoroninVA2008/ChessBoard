@@ -1,8 +1,13 @@
 import ReAct from 'react'
 import type { CodeProps } from './types'
 import './code.scss'
-import { Role } from './role/role'
+import { Role } from '../role/role'
 
+/**
+ * 
+ * @param param0 
+ * @returns 
+ */
 export const Code: ReAct.FC<CodeProps> = ({
   roomCode,
   myColor,

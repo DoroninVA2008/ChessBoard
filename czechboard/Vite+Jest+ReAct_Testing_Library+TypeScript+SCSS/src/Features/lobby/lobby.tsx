@@ -1,12 +1,14 @@
 import ReAct, { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import './lobby.scss'
 import type { LobbyProps } from './types'
+import { joinRoomThunk } from './thunks'
 import { Create } from '../../views/create/create'
 import { Connect } from '../../views/connect/connect'
-import { SideChoice } from './side/side'
-import { Code } from './code/code'
-import { Step } from './step/step'
-import { Status } from './status/status'
+import { SideChoice } from '../../widgets/side/side'
+import { Code } from '../../widgets/code/code'
+import { Step } from '../../views/step/step'
+import { Status } from '../../views/status/status'
 
 export const Lobby: ReAct.FC<LobbyProps> = ({
   onCreateRoom,
@@ -21,12 +23,14 @@ export const Lobby: ReAct.FC<LobbyProps> = ({
   turn,
   error,
 }) => {
+  const dispatch = useDispatch();
   const [joinCode, setJoinCode] = useState('')
 
   const handleJoin = () => {
     const code = joinCode.trim().toUpperCase()
     if (!code) return
-    onJoinRoom(code)
+    // Ток не санку а экшин который ей соответствует
+    dispatch(joinRoomThunk(code))
   }
 
   const showIdleContent = status === 'idle' || status === 'choosing-side'

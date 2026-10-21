@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { configureStore, createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
+import { configureStore, createAsyncThunk } from '@reduxjs/toolkit'
 import type { Piece, PieceColor } from '../features/chessboard/types'
-import type { LobbyStatus, RoomCode, PlayerColor, ColorChoice } from '../features/lobby/types'
-import { initialPosition } from '../features/chessboard/moves'
+import type {/*LobbyStatus, RoomCode,*/ PlayerColor, ColorChoice } from '../features/lobby/types'
 import { createRoom, joinRoom, getRoom } from '../features/lobby/lob'
 import { openRoomSocket, type RoomSocket, type RoomStateFromServer } from '../shared/ws/room'
+import { LobbyFeature } from '../features/lobby'
 
 const TOKEN_KEY = 'chess.roomToken'
 const CODE_KEY = 'chess.roomCode'
@@ -15,63 +15,7 @@ function toColorChoice(color: PlayerColor): ColorChoice {
   return color === 'white' ? 'WHITE' : 'BLACK'
 }
 
-function fromServerColor(color: 'white' | 'black'): PlayerColor {
-  return color
-}
-
 let roomSocketRef: RoomSocket | null = null
-
-interface LobbyState {
-  pieces: Piece[]
-  turn: PieceColor
-  myColor: PlayerColor
-  opponentConnected: boolean
-  status: LobbyStatus
-  roomCode: RoomCode | null
-  error: string | null
-}
-
-const initialState: LobbyState = {
-  pieces: initialPosition(),
-  turn: 'white',
-  myColor: 'white',
-  opponentConnected: false,
-  status: 'idle',
-  roomCode: null,
-  error: null,
-}
-
-const createRoomThunk = createAsyncThunk<{ code: string; color: PlayerColor; token: string }, PlayerColor, { rejectValue: string }>('lobby/createRoom', async (color, { rejectWithValue }) => {
-  try {
-    const result = await createRoom(toColorChoice(color))
-    localStorage.setItem(TOKEN_KEY, result.token)
-    localStorage.setItem(CODE_KEY, result.code)
-    localStorage.setItem(COLOR_KEY, result.color)
-    return { code: result.code, color: result.color, token: result.token }
-  } catch (e) {
-    return rejectWithValue(
-      e instanceof Error ? e.message : 'Не удалось создать комнату',
-    )
-  }
-})
-
-const joinRoomThunk = createAsyncThunk<
-  { code: string; color: PlayerColor; token: string },
-  string,
-  { rejectValue: string }
->('lobby/joinRoom', async (code, { rejectWithValue }) => {
-  try {
-    const result = await joinRoom(code.toUpperCase())
-    localStorage.setItem(TOKEN_KEY, result.token)
-    localStorage.setItem(CODE_KEY, result.code)
-    localStorage.setItem(COLOR_KEY, result.color)
-    return { code: result.code, color: result.color, token: result.token }
-  } catch (e) {
-    return rejectWithValue(
-      e instanceof Error ? e.message : 'Не удалось подключиться',
-    )
-  }
-})
 
 const restoreSessionThunk = createAsyncThunk<
   { state: RoomStateFromServer; color: PlayerColor } | null,
@@ -94,97 +38,6 @@ const restoreSessionThunk = createAsyncThunk<
       e instanceof Error ? e.message : 'restore failed',
     )
   }
-})
-
-function applyRoomStateToDraft(
-  draft: LobbyState,
-  state: RoomStateFromServer,
-) {
-  draft.turn = state.turn
-
-  const whiteConnected = state.players?.white?.connected === true
-  const blackConnected = state.players?.black?.connected === true
-  draft.opponentConnected = whiteConnected && blackConnected
-
-  if (state.status === 'ready' || state.status === 'playing') {
-    draft.status = 'connected'
-  } else if (state.status === 'waiting') {
-    draft.status = 'waiting-for-opponent'
-  }
-}
-
-const lobbySlice = createSlice({
-  name: 'lobby',
-  initialState,
-  reducers: {
-    openSideChoice(state) {
-      state.error = null
-      state.status = 'choosing-side'
-    },
-
-    backFromSideChoice(state) {
-      state.status = 'idle'
-      state.error = null
-    },
-
-    clearError(state) {
-      state.error = null
-    },
-
-    roomStateReceived(state, action: PayloadAction<RoomStateFromServer>) {
-      applyRoomStateToDraft(state, action.payload)
-    },
-  },
-
-  extraReducers: (builder) => {
-    builder.addCase(createRoomThunk.pending, (state) => {
-      state.error = null
-    })
-    builder.addCase(createRoomThunk.fulfilled, (state, action) => {
-      state.roomCode = action.payload.code
-      state.myColor = fromServerColor(action.payload.color)
-      state.status = 'waiting-for-opponent'
-    })
-    builder.addCase(createRoomThunk.rejected, (state, action) => {
-      state.error = action.payload ?? 'Не удалось создать комнату'
-      state.status = 'idle'
-    })
-
-    builder.addCase(joinRoomThunk.pending, (state) => {
-      state.error = null
-    })
-    builder.addCase(joinRoomThunk.fulfilled, (state, action) => {
-      state.roomCode = action.payload.code
-      state.myColor = fromServerColor(action.payload.color)
-      state.status = 'connected'
-    })
-    builder.addCase(joinRoomThunk.rejected, (state, action) => {
-      state.error = action.payload ?? 'Не удалось подключиться'
-    })
-
-    builder.addCase(restoreSessionThunk.fulfilled, (state, action) => {
-      if (!action.payload) return
-      state.roomCode = action.payload.state.code
-      state.myColor = fromServerColor(action.payload.color)
-      applyRoomStateToDraft(state, action.payload.state)
-    })
-    builder.addCase(restoreSessionThunk.rejected, (state) => {
-      state.status = 'idle'
-    })
-  },
-})
-
-const {
-  openSideChoice,
-  backFromSideChoice,
-  // clearError,
-  roomStateReceived,
-} = lobbySlice.actions
-
-export const store = configureStore({
-  reducer: {
-    lobby: lobbySlice.reducer,
-  },
 })
 
 export type RootState = ReturnType<typeof store.getState>
@@ -310,3 +163,9 @@ export function useReduxStore() {
     handleJoinRoom,
   }
 }
+
+export const store = configureStore({
+  reducer: {
+    ...LobbyFeature.reducer
+  },
+})

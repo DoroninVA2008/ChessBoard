@@ -1,4 +1,4 @@
-@import './app/app.scss';
+@import '../../app/app.scss';
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -15,6 +15,40 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  // min-height: 100vh;
+  background: $backpage;
+  color: $lightpoint;
+  padding: 2rem;
+  font-family: $fontshrift;
+
+  @media (max-height: 980px) {
+    padding: 2rem 2rem 0 2rem !important;
+  }
+
+  @media (max-height: 900px) {
+    padding: 2rem !important;
+  }
+
+  h1 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: clamp(0.4px, 2vw, 0.8px);
+    font-size: clamp(12px, 2vw, 24px);
+    color: #fff;
+  }
+  
+  .app-title {
+    &__text {
+      margin: 0 4px;
+    }
+  }
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -22,16 +56,6 @@ a {
 }
 a:hover {
   color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  background: $backpage;
-  // min-width: 320px;
-  // height: auto; 
-  min-height: 100vh;
 }
 
 button {

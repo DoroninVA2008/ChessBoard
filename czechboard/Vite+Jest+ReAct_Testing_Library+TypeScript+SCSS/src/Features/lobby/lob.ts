@@ -1,5 +1,6 @@
 import { AxiosAPIGETXML, AxiosAPIPOSTXML } from '../../shared/axiosxml.api'
-import type { PlayerColor, ColorChoice } from './types'
+import type { Piece, PieceColor } from '../chessboard/types'
+import type { PlayerColor, LobbyStatus, RoomCode, ColorChoice } from './types'
 
 export interface PlayerSlot {
   connected: boolean
@@ -26,6 +27,16 @@ export interface JoinResult {
 export interface RoomInfo {
   color: PlayerColor
   state: RoomState
+}
+
+export interface LobbyState {
+  pieces: Piece[]
+  turn: PieceColor
+  myColor: PlayerColor
+  opponentConnected: boolean
+  status: LobbyStatus
+  roomCode: RoomCode | null
+  error: string | null
 }
 
 export function createRoom(color: ColorChoice = 'RANDOM') {

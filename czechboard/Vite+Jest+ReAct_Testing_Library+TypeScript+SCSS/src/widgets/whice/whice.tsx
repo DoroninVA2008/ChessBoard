@@ -1,5 +1,5 @@
 import ReAct from 'react'
-import { White } from '../../../../views/white/white'
+import { White } from '../../views/white/white'
 import type { WhiteProps } from './types'
 
 export const Whice: ReAct.FC<WhiteProps> = ({ onChoose }) => {
