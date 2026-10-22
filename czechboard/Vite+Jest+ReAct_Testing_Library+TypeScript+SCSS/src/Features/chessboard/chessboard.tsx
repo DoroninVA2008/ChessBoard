@@ -14,10 +14,10 @@ import { getLegalMoves,
   squareToCoords,
   FILES,
   CELLS } from './moves'
-import { Square as SquareComp } from './square/square'
-import { Pieces } from './pieces/pieces'
-import { Coords } from './coords/coords'
-import { ChessButtons } from './chesbutons/chesbutons'
+import { Square as SquareComp } from '../../views/square/square'
+import { Pieces } from '../../widgets/pieces/pieces'
+import { Coords } from '../../widgets/coords/coords'
+import { ChessButtons } from '../../widgets/chesbutons/chesbutons'
 
 export const ChessBoard: ReAct.FC<Props> = ({
   initialPieces,

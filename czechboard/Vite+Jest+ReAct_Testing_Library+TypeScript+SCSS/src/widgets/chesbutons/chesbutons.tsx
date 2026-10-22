@@ -1,7 +1,7 @@
 import ReAct from 'react'
-import { NewPart } from '../../../views/newpart/newpart'
-import { UnDo } from '../../../views/undo/undo'
-import { Flip } from '../../../views/flip/flip'
+import { NewPart } from '../../views/newpart/newpart'
+import { UnDo } from '../../views/undo/undo'
+import { Flip } from '../../views/flip/flip'
 import type { ChessButtonsProps } from './types'
 import './chesbutons.scss'
 

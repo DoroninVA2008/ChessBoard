@@ -3,7 +3,7 @@ import './side.scss'
 import type { SideChoiceProps } from './types.ts'
 import { Choice } from '../../views/choice/choice'
 import { Whice } from '../whice/whice.tsx'
-import { Blace } from '../../views/blace/blace.tsx'
+import { Blace } from '../blace/blace.tsx'
 import { Random } from '../../views/random/random'
 import { Back } from '../../views/back/back'
 

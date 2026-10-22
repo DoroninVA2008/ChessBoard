@@ -1,5 +1,5 @@
 import ReAct from 'react'
-import { Coord } from '../../../views/coord/coord'
+import { Coord } from '../../views/coord/coord'
 import type { coordsProps } from './types'
 import './coords.scss'
 

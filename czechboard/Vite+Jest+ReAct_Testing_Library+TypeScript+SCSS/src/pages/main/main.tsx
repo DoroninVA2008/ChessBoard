@@ -1,5 +1,5 @@
 import ReAct from 'react'
-import { useReduxStore } from '../../app/store' // Исправить
+import { useLobby } from '../../features/lobby/lob' // Исправить
 import './main.scss'
 import { ChessBoard } from '../../features/chessboard/chessboard'
 import { Lobby } from '../../features/lobby/lobby'
@@ -20,7 +20,7 @@ export const Main: ReAct.FC = () => {
     handleRandomSide,
     handleBackFromSideChoice,
     handleJoinRoom,
-  } = useReduxStore()
+  } = useLobby()
 
   return (
     <div className="main">

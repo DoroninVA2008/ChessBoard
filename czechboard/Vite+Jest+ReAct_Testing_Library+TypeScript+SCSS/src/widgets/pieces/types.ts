@@ -1,4 +1,4 @@
-import type { Piece, Square as SquareType } from '../types'
+import type { Piece, Square as SquareType } from '../../features/chessboard/types'
 
 export type PiecesProps = {
   pieces: Piece[]

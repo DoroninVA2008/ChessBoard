@@ -1,7 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import type { Dispatch } from '@reduxjs/toolkit'
 import { initialPosition } from '../chessboard/moves'
-import { createRoomThunk, joinRoomThunk } from './thunks'
-import type { LobbyState } from './lob'
+import { openRoomSocket, type RoomSocket, type RoomStateFromServer } from '../../shared/ws/room'
+import { getRoom, type LobbyState } from './lob'
+import { createRoomThunk, joinRoomThunk, restoreSessionThunk, readSession } from './thunks'
 import type { PlayerColor } from './types'
 
 function fromServerColor(color: 'white' | 'black'): PlayerColor {
@@ -35,7 +37,7 @@ function applyRoomStateToDraft(
   }
 }
 
-export const {actions, name, reducer} = createSlice({
+const lobbySlice = createSlice({
   name: 'lobby',
   initialState,
   reducers: {
@@ -43,21 +45,17 @@ export const {actions, name, reducer} = createSlice({
       state.error = null
       state.status = 'choosing-side'
     },
-
     backFromSideChoice(state) {
       state.status = 'idle'
       state.error = null
     },
-
     clearError(state) {
       state.error = null
     },
-
     roomStateReceived(state, action: PayloadAction<RoomStateFromServer>) {
       applyRoomStateToDraft(state, action.payload)
     },
   },
-
   extraReducers: (builder) => {
     builder.addCase(createRoomThunk.pending, (state) => {
       state.error = null
@@ -96,9 +94,40 @@ export const {actions, name, reducer} = createSlice({
   },
 })
 
-const {
-  openSideChoice,
-  backFromSideChoice,
-  // clearError,
-  roomStateReceived,
-} = lobbySlice.actions
+export const { name, reducer, actions } = lobbySlice
+
+let roomSocketRef: RoomSocket | null = null
+/**
+ * Подключение к комнате через WebSocket.
+ * Возвращает cleanup-функцию для useEffect.
+ * Живёт в state.ts, потому что это «боковой эффект состояния» фичи.
+ */
+export function connectRoomSocket(dispatch: Dispatch) {
+  if (roomSocketRef) return () => {}
+
+  const session = readSession()
+  if (!session) return () => {}
+
+  const { code, token } = session
+
+  const ws = openRoomSocket({
+    code,
+    token,
+    onState: (state) => dispatch(actions.roomStateReceived(state)),
+    onConnected: () => console.log('[WS] connected to room', code),
+    onSubscribed: () => {
+      getRoom(code, token)
+        .then((info) => dispatch(actions.roomStateReceived(info.state)))
+        .catch((e) => console.error('[WS] initial getRoom failed:', e))
+    },
+    onDisconnected: () => console.log('[WS] disconnected from room', code),
+    onError: (msg) => console.error('[WS] error:', msg),
+  })
+
+  roomSocketRef = ws
+
+  return () => {
+    ws.disconnect()
+    roomSocketRef = null
+  }
+}

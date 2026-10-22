@@ -1,6 +1,6 @@
 import ReAct from 'react'
 import type { BlackProps } from './types'
-import { Black } from '../black/black'
+import { Black } from '../../views/black/black'
 
 export const Blace: ReAct.FC<BlackProps> = ({ onChoose }) => {
   return (

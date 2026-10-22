@@ -1,5 +1,5 @@
-import { FILES, CELLS, squareToCoords } from '../moves'
-import type { Square } from '../types'
+import { FILES, CELLS, squareToCoords } from '../../features/chessboard/moves'
+import type { Square } from '../../features/chessboard/types'
 
 export function getCellSize(boardEl: HTMLDivElement | null): number {
   if (!boardEl) return 1

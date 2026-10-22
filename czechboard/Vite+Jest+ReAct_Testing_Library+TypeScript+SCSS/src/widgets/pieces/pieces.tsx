@@ -1,5 +1,5 @@
 import ReAct from 'react'
-import { PieceItem } from '../../../views/piece/piece'
+import { PieceItem } from '../../views/piece/piece'
 import type { PiecesProps } from './types'
 import './pieces.scss'
 
