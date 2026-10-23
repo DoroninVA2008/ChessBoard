@@ -8,7 +8,7 @@ export const Main: ReAct.FC = () => {
   const {
     pieces,
     turn,
-    setTurn,
+    // setTurn,
     myColor,
     opponentConnected,
     status,
@@ -37,14 +37,14 @@ export const Main: ReAct.FC = () => {
         turn={turn}
         error={error}
       />
-      {inRoom && (
-        <ChessBoard
-          initialPieces={pieces}
-          initialTurn={turn}
-          className="chessboard--game"
-          onTurnChange={setTurn}
-        />
-      )}
+        {inRoom && (
+          <ChessBoard
+            initialPieces={pieces}
+            initialTurn={turn}
+            className="chessboard--game"
+            // onTurnChange={setTurn}
+          />
+        )}
     </div>
   )
 }
