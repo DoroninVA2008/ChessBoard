@@ -1,5 +1,5 @@
 import ReAct, { useState } from 'react'
-import { useLobby } from './lob'
+import { useLobby } from '../../features/lobby/uslob'
 import './lobby.scss'
 import { Create } from '../../views/create/create'
 import { Connect } from '../../views/connect/connect'

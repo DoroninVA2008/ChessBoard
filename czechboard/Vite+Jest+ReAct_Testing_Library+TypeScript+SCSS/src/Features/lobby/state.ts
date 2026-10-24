@@ -1,9 +1,16 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Dispatch } from '@reduxjs/toolkit'
 import { initialPosition } from '../chessboard/moves'
 import { openRoomSocket, type RoomSocket, type RoomStateFromServer } from '../../shared/ws/room'
 import { getRoom, type LobbyState } from './lob'
-import { createRoomThunk, joinRoomThunk, restoreSessionThunk, readSession } from './thunks'
+import {
+  createRoomSuccess,
+  createRoomFailure,
+  joinRoomSuccess,
+  joinRoomFailure,
+  restoreSessionSuccess,
+  restoreSessionFailure,
+} from './actions'
+import { readSession } from './storage'
 import type { PlayerColor } from './types'
 
 function fromServerColor(color: 'white' | 'black'): PlayerColor {
@@ -20,16 +27,11 @@ const initialState: LobbyState = {
   error: null,
 }
 
-function applyRoomStateToDraft(
-  draft: LobbyState,
-  state: RoomStateFromServer,
-) {
+function applyRoomStateToDraft(draft: LobbyState, state: RoomStateFromServer) {
   draft.turn = state.turn
-
   const whiteConnected = state.players?.white?.connected === true
   const blackConnected = state.players?.black?.connected === true
   draft.opponentConnected = whiteConnected && blackConnected
-
   if (state.status === 'ready' || state.status === 'playing') {
     draft.status = 'connected'
   } else if (state.status === 'waiting') {
@@ -57,38 +59,32 @@ const lobbySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(createRoomThunk.pending, (state) => {
-      state.error = null
-    })
-    builder.addCase(createRoomThunk.fulfilled, (state, action) => {
+    builder.addCase(createRoomSuccess, (state, action) => {
       state.roomCode = action.payload.code
       state.myColor = fromServerColor(action.payload.color)
       state.status = 'waiting-for-opponent'
     })
-    builder.addCase(createRoomThunk.rejected, (state, action) => {
-      state.error = action.payload ?? 'Не удалось создать комнату'
+    builder.addCase(createRoomFailure, (state, action) => {
+      state.error = action.payload
       state.status = 'idle'
     })
 
-    builder.addCase(joinRoomThunk.pending, (state) => {
-      state.error = null
-    })
-    builder.addCase(joinRoomThunk.fulfilled, (state, action) => {
+    builder.addCase(joinRoomSuccess, (state, action) => {
       state.roomCode = action.payload.code
       state.myColor = fromServerColor(action.payload.color)
       state.status = 'connected'
     })
-    builder.addCase(joinRoomThunk.rejected, (state, action) => {
-      state.error = action.payload ?? 'Не удалось подключиться'
+    builder.addCase(joinRoomFailure, (state, action) => {
+      state.error = action.payload
     })
 
-    builder.addCase(restoreSessionThunk.fulfilled, (state, action) => {
+    builder.addCase(restoreSessionSuccess, (state, action) => {
       if (!action.payload) return
       state.roomCode = action.payload.state.code
       state.myColor = fromServerColor(action.payload.color)
       applyRoomStateToDraft(state, action.payload.state)
     })
-    builder.addCase(restoreSessionThunk.rejected, (state) => {
+    builder.addCase(restoreSessionFailure, (state) => {
       state.status = 'idle'
     })
   },
@@ -97,12 +93,8 @@ const lobbySlice = createSlice({
 export const { name, reducer, actions } = lobbySlice
 
 let roomSocketRef: RoomSocket | null = null
-/**
- * Подключение к комнате через WebSocket.
- * Возвращает cleanup-функцию для useEffect.
- * Живёт в state.ts, потому что это «боковой эффект состояния» фичи.
- */
-export function connectRoomSocket(dispatch: Dispatch) {
+
+export function connectRoomSocket(dispatch: (a: unknown) => void) {
   if (roomSocketRef) return () => {}
 
   const session = readSession()

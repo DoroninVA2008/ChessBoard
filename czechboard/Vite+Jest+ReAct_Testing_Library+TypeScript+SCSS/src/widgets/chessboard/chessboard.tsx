@@ -7,13 +7,13 @@ import type {
   Props,
   DragState,
   HistoryEntry,
-} from './types'
+} from '../../features/chessboard/types'
 import { getLegalMoves, 
   isLegalMove, 
   initialPosition,
   squareToCoords,
   FILES,
-  CELLS } from './moves'
+  CELLS } from '../../features/chessboard/moves'
 import { Square as SquareComp } from '../../views/square/square'
 import { Pieces } from '../../widgets/pieces/pieces'
 import { Coords } from '../../widgets/coords/coords'

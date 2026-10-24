@@ -1,8 +1,8 @@
 import ReAct from 'react'
-import { useLobby } from '../../features/lobby/lob' // Исправить
+import { useLobby } from '../../features/lobby/uslob' // Исправить
 import './main.scss'
-import { ChessBoard } from '../../features/chessboard/chessboard'
-import { Lobby } from '../../features/lobby/lobby'
+import { ChessBoard } from '../../widgets/chessboard/chessboard'
+import { Lobby } from '../../widgets/lobby/lobby'
 
 export const Main: ReAct.FC = () => {
   const {
